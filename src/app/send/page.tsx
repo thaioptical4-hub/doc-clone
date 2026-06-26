@@ -1,0 +1,32 @@
+"use client"
+
+import { useState } from "react"
+import DocumentForm from "@/components/DocumentForm"
+
+export default function SendPage() {
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSuccess = () => {
+    setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 3000)
+  }
+
+  if (submitted) {
+    return (
+      <div className="card" style={{ textAlign: "center", marginTop: 24 }}>
+        <h2>Document Sent</h2>
+        <p style={{ color: "#34c759", marginTop: 8 }}>The recipient can now confirm it on the Receive tab.</p>
+        <button className="btn-primary" style={{ marginTop: 16 }} onClick={() => setSubmitted(false)}>
+          Send Another
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ marginTop: 24 }}>
+      <h2 style={{ marginBottom: 16 }}>Send Document</h2>
+      <DocumentForm onSuccess={handleSuccess} />
+    </div>
+  )
+}

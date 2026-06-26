@@ -1,0 +1,65 @@
+import { neon } from "@neondatabase/serverless"
+import type { Document, Attachment, DocStatus, AttachmentKind } from "./types"
+
+const sql = neon(process.env.POSTGRES_URL!)
+
+export async function createDocument(params: {
+  doc_type: string
+  sender_name: string
+  recipient_name: string
+  photo_sender?: string
+  signature_sender?: string
+}): Promise<Document> {
+  const rows = await sql`
+    INSERT INTO documents (doc_type, sender_name, recipient_name, status)
+    VALUES (${params.doc_type}, ${params.sender_name}, ${params.recipient_name}, 'sent')
+    RETURNING *
+  `
+  const doc = rows[0] as Document
+
+  if (params.photo_sender) {
+    await addAttachment(doc.id, "photo_sender", params.photo_sender)
+  }
+  if (params.signature_sender) {
+    await addAttachment(doc.id, "signature_sender", params.signature_sender)
+  }
+
+  return doc
+}
+
+export async function getDocuments(status?: DocStatus): Promise<Document[]> {
+  if (status) {
+    return (await sql`SELECT * FROM documents WHERE status = ${status} ORDER BY created_at DESC`) as Document[]
+  }
+  return (await sql`SELECT * FROM documents ORDER BY created_at DESC`) as Document[]
+}
+
+export async function getDocument(id: number) {
+  const docs = await sql`SELECT * FROM documents WHERE id = ${id}`
+  if (docs.length === 0) return null
+  const attachments = await sql`SELECT * FROM attachments WHERE document_id = ${id} ORDER BY created_at ASC`
+  return { ...docs[0], attachments } as Document & { attachments: Attachment[] }
+}
+
+export async function confirmDocument(
+  id: number,
+  params: { photo_recipient?: string; signature_recipient?: string }
+) {
+  await sql`UPDATE documents SET status = 'confirmed', updated_at = NOW() WHERE id = ${id}`
+  if (params.photo_recipient) {
+    await addAttachment(id, "photo_recipient", params.photo_recipient)
+  }
+  if (params.signature_recipient) {
+    await addAttachment(id, "signature_recipient", params.signature_recipient)
+  }
+  return getDocument(id)
+}
+
+async function addAttachment(documentId: number, kind: AttachmentKind, data: string) {
+  await sql`
+    INSERT INTO attachments (document_id, kind, data)
+    VALUES (${documentId}, ${kind}, ${data})
+  `
+}
+
+export { sql }
