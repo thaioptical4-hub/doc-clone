@@ -20,6 +20,7 @@ Internal document delivery and confirmation system for company use. Runs on two 
 |---|---|
 | `POSTGRES_URL` | Your Neon connection string |
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32` output |
+| `NEXTAUTH_URL` | Your Vercel app URL (e.g. `https://doc-delivery.vercel.app`) |
 | `APP_USER` | Choose a username (e.g. `admin`) |
 | `APP_PASS` | Choose a password |
 
