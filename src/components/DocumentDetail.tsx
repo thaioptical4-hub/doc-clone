@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { jsPDF } from "jspdf"
+import html2canvas from "html2canvas"
 import CameraCapture from "./CameraCapture"
 import SignaturePad from "./SignaturePad"
 import type { DocumentWithAttachments } from "@/lib/types"
@@ -25,6 +27,8 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
   const [photo, setPhoto] = useState<string | null>(null)
   const [signature, setSignature] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const printRef = useRef<HTMLDivElement>(null)
 
   const senderPhoto = document.attachments.find((a) => a.kind === "photo_sender")
   const senderSig = document.attachments.find((a) => a.kind === "signature_sender")
@@ -38,13 +42,60 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
     setConfirming(false)
   }
 
+  async function handleExport() {
+    if (!printRef.current) return
+    setExporting(true)
+    try {
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+      })
+      const imgData = canvas.toDataURL("image/jpeg", 0.85)
+      const pdf = new jsPDF("p", "mm", "a4")
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const imgWidth = pageWidth - 20
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+      let position = 10
+
+      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight)
+      heightLeft -= pdf.internal.pageSize.getHeight() - 20
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + 10
+        pdf.addPage()
+        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight)
+        heightLeft -= pdf.internal.pageSize.getHeight() - 20
+      }
+
+      const blob = pdf.output("blob")
+      const file = new File([blob], `doc-${document.id}-${document.doc_type.replace(/\s+/g, "-")}.pdf`, {
+        type: "application/pdf",
+      })
+
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: document.doc_type })
+      } else {
+        const url = URL.createObjectURL(blob)
+        const a = window.document.createElement("a")
+        a.href = url
+        a.download = file.name
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <>
-      <button className="btn-print" onClick={() => window.print()}>
-        Export PDF
+      <button className="btn-print" onClick={handleExport} disabled={exporting}>
+        {exporting ? "Generating PDF..." : "Export PDF"}
       </button>
 
-      <div className="card print-area">
+      <div className="card" ref={printRef}>
         <h3 style={{ marginBottom: 8 }}>{document.doc_type}</h3>
 
         <div style={{ marginBottom: 16 }}>
