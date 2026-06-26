@@ -1,3 +1,4 @@
+import { useState } from "react"
 import Link from "next/link"
 import type { Document } from "@/lib/types"
 
@@ -28,55 +29,64 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
     )
   }
 
-  async function handleDelete(e: React.MouseEvent, id: number) {
-    e.preventDefault()
-    e.stopPropagation()
+  const [deleting, setDeleting] = useState<number | null>(null)
+
+  async function handleDelete(id: number) {
+    if (deleting) return
     if (!window.confirm("ลบเอกสารนี้?")) return
-    const res = await fetch(`/api/documents/${id}`, { method: "DELETE" })
-    if (res.ok) onDelete?.(id)
+    setDeleting(id)
+    try {
+      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" })
+      if (res.ok) onDelete?.(id)
+    } catch {
+      // Silently fail — list stays unchanged
+    } finally {
+      setDeleting(null)
+    }
   }
 
   return (
     <div className="card" style={{ padding: 0 }}>
       {documents.map((doc) => (
-        <Link
-          key={doc.id}
-          href={`/receive/${doc.id}`}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <div className="doc-list-item">
-            <div>
-              <div style={{ fontWeight: 600 }}>{doc.doc_type}</div>
-              <div style={{ fontSize: "0.85rem", color: "#888", marginTop: 2 }}>
-                {doc.sender_name} &rarr; {doc.recipient_name}
+        <div key={doc.id} className="doc-list-row">
+          <Link
+            href={`/receive/${doc.id}`}
+            style={{ textDecoration: "none", color: "inherit", flex: 1, minWidth: 0 }}
+          >
+            <div className="doc-list-item">
+              <div>
+                <div style={{ fontWeight: 600 }}>{doc.doc_type}</div>
+                <div style={{ fontSize: "0.85rem", color: "#888", marginTop: 2 }}>
+                  {doc.sender_name} &rarr; {doc.recipient_name}
+                </div>
               </div>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "right" }}>
                 {statusBadge(doc.status)}
                 <div style={{ fontSize: "0.75rem", color: "#aaa", marginTop: 4 }}>
                   {new Date(doc.created_at).toLocaleDateString()}
                 </div>
               </div>
-              {onDelete && (
-                <button
-                  onClick={(e) => handleDelete(e, doc.id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#ff3b30",
-                    fontSize: "1.2rem",
-                    cursor: "pointer",
-                    padding: "4px 8px",
-                  }}
-                  title="ลบ"
-                >
-                  &times;
-                </button>
-              )}
             </div>
-          </div>
-        </Link>
+          </Link>
+          {onDelete && (
+            <button
+              onClick={() => handleDelete(doc.id)}
+              disabled={deleting === doc.id}
+              style={{
+                background: "none",
+                border: "none",
+                color: deleting === doc.id ? "#ccc" : "#ff3b30",
+                fontSize: "1.4rem",
+                cursor: "pointer",
+                padding: "12px 16px",
+                lineHeight: 1,
+              }}
+              title="ลบ"
+            >
+              &times;
+            </button>
+          )}
+        </div>
       ))}
     </div>
   )

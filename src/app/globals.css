@@ -132,6 +132,21 @@ button:active {
   background: #f0f0f0;
 }
 
+.doc-list-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #eee;
+}
+
+.doc-list-row:last-child {
+  border-bottom: none;
+}
+
+.doc-list-row .doc-list-item {
+  border-bottom: none;
+  height: 100%;
+}
+
 .badge {
   display: inline-block;
   padding: 4px 10px;
