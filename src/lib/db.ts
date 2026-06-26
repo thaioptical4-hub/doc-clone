@@ -57,6 +57,13 @@ export async function confirmDocument(
 }
 
 async function addAttachment(documentId: number, kind: AttachmentKind, data: string) {
+  if (!data.startsWith("data:image/")) {
+    throw new Error("Invalid attachment format")
+  }
+  const rawSize = Math.ceil(((data.length * 3) / 4) - (data.endsWith("==") ? 2 : data.endsWith("=") ? 1 : 0))
+  if (rawSize > 5 * 1024 * 1024) {
+    throw new Error("Attachment too large")
+  }
   await sql`
     INSERT INTO attachments (document_id, kind, data)
     VALUES (${documentId}, ${kind}, ${data})
