@@ -68,4 +68,10 @@ export async function deleteDocument(id: number) {
   await sql`DELETE FROM documents WHERE id = ${id}`
 }
 
+export async function deleteDocuments(ids: number[]) {
+  if (ids.length === 0) return
+  await sql`DELETE FROM attachments WHERE document_id = ANY(${ids})`
+  await sql`DELETE FROM documents WHERE id = ANY(${ids})`
+}
+
 export { sql }
