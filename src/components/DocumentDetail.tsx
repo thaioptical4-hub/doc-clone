@@ -54,20 +54,17 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
       const imgData = canvas.toDataURL("image/jpeg", 0.85)
       const pdf = new jsPDF("p", "mm", "a4")
       const pageWidth = pdf.internal.pageSize.getWidth()
-      const imgWidth = pageWidth - 20
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-      let position = 10
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 10
+      const maxW = pageWidth - margin * 2
+      const maxH = pageHeight - margin * 2
+      const scale = Math.min(maxW / canvas.width, maxH / canvas.height)
+      const finalW = canvas.width * scale
+      const finalH = canvas.height * scale
+      const x = (pageWidth - finalW) / 2
+      const y = (pageHeight - finalH) / 2
 
-      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight)
-      heightLeft -= pdf.internal.pageSize.getHeight() - 20
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + 10
-        pdf.addPage()
-        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight)
-        heightLeft -= pdf.internal.pageSize.getHeight() - 20
-      }
+      pdf.addImage(imgData, "JPEG", x, y, finalW, finalH)
 
       const blob = pdf.output("blob")
       const file = new File([blob], `doc-${document.id}-${document.doc_type.replace(/\s+/g, "-")}.pdf`, {

@@ -121,6 +121,5 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
 }
 
 function toSVG(canvas: HTMLCanvasElement): string {
-  const dataUrl = canvas.toDataURL("image/png")
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width / window.devicePixelRatio}" height="${canvas.height / window.devicePixelRatio}"><image href="${dataUrl}" width="100%" height="100%"/></svg>`
+  return canvas.toDataURL("image/png")
 }
