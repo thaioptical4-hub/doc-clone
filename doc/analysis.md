@@ -29,8 +29,10 @@
 |             ┌───────────────┐                                  |
 |             │  API Routes    │                                 |
 |             │  /api/documents│  GET(list), POST(create)        |
-|             │  /api/documents│  GET(single), PATCH(confirm)    |
-|             │       /[id]    │                                 |
+|             │  /api/documents│  GET(single), PATCH(confirm),   |
+|             │       /[id]    │  DELETE                         |
+|             │  /api/documents│  POST(batch delete)             |
+|             │  /batch-delete │                                 |
 |             └───────┬───────┘                                  |
 +---------------------------------------------------------------+
                       │
@@ -87,7 +89,7 @@ doc-delivery/
 │   │   ├── CameraCapture.tsx       # <input capture="environment">
 │   │   └── TabBar.tsx             # Send / Receive switcher
 │   ├── lib/
-│   │   ├── db.ts                   # Vercel Postgres pool
+│   │   ├── db.ts                   # Neon query helpers (CRUD + batch delete)
 │   │   └── types.ts                # Document, Attachment, Status enums
 │   └── middleware.ts               # NextAuth gate
 ├── public/
@@ -113,6 +115,10 @@ doc-delivery/
 | **Signatures** | `<canvas>` + PointerEvent | Apple Pencil pressure and azimuth via PointerEvent API, export SVG for compact storage |
 | **Camera** | `<input capture="environment">` | Works in Safari on iPad, opens camera directly, no permissions dance |
 | **Hosting** | Vercel | Free tier (100GB bandwidth, custom domain support). One click deploy from repo |
+| **Language** | Thai (th-TH) | UI text, date formatting (Buddhist calendar), status labels all in Thai | | 
+| **Doc type** | Free-text `<input>` | Replaced dropdown/select after requirements changed; no predefined enum needed |
+| **PDF export (single)** | html2canvas + jsPDF | Captures rendered card DOM to canvas, embeds in A4 PDF. Share via navigator.share on iPad |
+| **PDF export (all)** | jsPDF text render | Iterates documents, draws text rows per page. No DOM rendering needed |
 | **Handoff** | Public GitHub repo + Vercel deploy button | Company creates their own Vercel account. Your repo stays public for portfolio. |
 
 ## What Changes vs What Stays Stable
@@ -131,26 +137,34 @@ doc-delivery/
 
 ## Status
 
-### Phase 1 — Core Workflow
+### Phase 1 — Core Workflow ✓
 
-- [ ] `POST /api/documents` — create document with sender info, optional photo, optional signature
-- [ ] `GET /api/documents` — list all documents, filterable by status
-- [ ] `GET /api/documents/[id]` — single document with all attachments
-- [ ] `PATCH /api/documents/[id]` — confirm receipt, add recipient photo/signature
-- [ ] Send page (`/send`) — form with doc type dropdown, sender, recipient, photo capture, signature pad, submit
-- [ ] Receive list (`/receive`) — table view of documents by status, tap to open detail
-- [ ] Receive detail (`/receive/[id]`) — read-only sender info, photo capture button, signature pad, confirm button
-- [ ] SignaturePad component — canvas responds to touch + Apple Pencil, exports SVG, stores in DB
-- [ ] CameraCapture component — opens camera, compresses to JPEG, stores as base64 in DB
-- [ ] Auth gate — login page, NextAuth credentials provider, middleware redirect
-- [ ] PWA manifest — standalone mode, iOS safe-area, app icons
-- [ ] Database schema — documents + attachments tables created in Vercel Postgres
+- [x] `POST /api/documents` — create document with sender info, optional photo, optional signature
+- [x] `GET /api/documents` — list all documents, filterable by status
+- [x] `GET /api/documents/[id]` — single document with all attachments
+- [x] `PATCH /api/documents/[id]` — confirm receipt, add recipient photo/signature
+- [x] `DELETE /api/documents/[id]` — delete document + attachments
+- [x] `POST /api/documents/batch-delete` — bulk delete
+- [x] Send page (`/send`) — form with doc type text input, sender, recipient, photo capture, signature pad, submit
+- [x] Receive list (`/receive`) — date-grouped list, status badges, multi-select, Export All PDF, auto-refresh
+- [x] Receive detail (`/receive/[id]`) — read-only sender info, photo capture, signature pad, confirm, PDF export, delete
+- [x] SignaturePad component — canvas responds to touch + Apple Pencil, exports PNG base64 to DB
+- [x] CameraCapture component — opens camera, compresses to JPEG, stores as base64 in DB
+- [x] Auth gate — login page, NextAuth credentials provider, middleware redirect
+- [x] PWA manifest — standalone mode, iOS safe-area, app icons
+- [x] Database schema — documents + attachments tables in Neon
+- [x] All UI in Thai language (th-TH locale, Buddhist calendar)
 
-### Phase 2 — Deployment & Handoff
-Make the project deployable via Vercel with documented env vars and README instructions for company handoff.
+### Phase 2 — Deployment & Handoff ✓
+Project deployable via Vercel with documented env vars and README instructions for company handoff.
 
-### Phase 3 — Polish
-Error states, loading skeletons, list sorting/filtering, empty states.
+### Phase 3 — Polish ✓
+- Export single document PDF (html2canvas + jsPDF)
+- Export all documents combined PDF (jsPDF text)
+- Date-separated list groups
+- Multi-select batch delete with confirm dialog
+- Individual delete with confirm overlay (no window.confirm — iOS PWA safe)
+- "Send Another" button after successful submission
 
 ### Phase 4 — Offline Support
 Service worker for basic offline document viewing.

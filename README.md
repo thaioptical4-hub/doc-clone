@@ -6,11 +6,11 @@ Two iPads: **Tablet 1** sends documents with sender details, optional photo, and
 
 ## How It Works
 
-1. **Tablet 1** — Fill out the Send form: document type, sender name, recipient name, optional photo (camera), optional signature (Apple Pencil or finger). Tap Submit.
+1. **Tablet 1** — Fill out the Send form: document type, sender name, recipient name, optional photo (camera), optional signature (Apple Pencil or finger). Tap ส่งเอกสาร.
 2. **Paper moves physically** — the app tracks what was sent and by whom.
-3. **Tablet 2** — The document appears in the Receive list (auto-refreshes every 5s). Tap to open.
-4. **Tablet 2** — Review sender info and attachments. Add optional recipient photo + signature. Tap **Confirm Receipt**.
-5. Status changes to `confirmed`. Both tablets see the full audit trail.
+3. **Tablet 2** — The document appears in the Receive list (auto-refreshes every 5s, grouped by date). Tap to open.
+4. **Tablet 2** — Review sender info and attachments. Add optional recipient photo + signature. Tap **ยืนยันการรับ**.
+5. Status changes to `รับแล้ว`. Both tablets see the full audit trail. Optional: export PDF, delete, or multi-select batch delete.
 
 ## Workflow
 
@@ -88,9 +88,14 @@ npm run dev
 ## Project Structure
 
 ```
+db/
+└── schema.sql                 # Postgres schema (documents + attachments)
+
 src/
 ├── app/
-│   ├── api/documents/         # REST API (POST, GET list, GET detail, PATCH confirm)
+│   ├── api/documents/         # REST API (POST, GET list)
+│   │   ├── [id]/              # GET detail, PATCH confirm, DELETE
+│   │   └── batch-delete/      # POST bulk delete
 │   ├── login/                 # Single-credential login page
 │   ├── send/                  # Send form page
 │   ├── receive/[id]/          # Receive detail + confirm page
@@ -99,11 +104,11 @@ src/
 │   └── globals.css            # Styles
 ├── components/
 │   ├── CameraCapture.tsx      # Camera → compressed JPEG base64
-│   ├── DocumentDetail.tsx     # Full document view with confirm controls
+│   ├── DocumentDetail.tsx     # Full document view with confirm + PDF export + delete
 │   ├── DocumentForm.tsx       # Send form with all fields
-│   ├── DocumentList.tsx       # Document table with status badges
-│   ├── SignaturePad.tsx       # Canvas + PointerEvents → SVG
-│   └── TabBar.tsx             # Tab navigation (Send / Receive)
+│   ├── DocumentList.tsx       # Date-grouped list with status badges, multi-select, Export All
+│   ├── SignaturePad.tsx       # Canvas + PointerEvents → PNG base64
+│   └── TabBar.tsx             # Tab navigation (ส่ง / รับ)
 ├── lib/
 │   ├── auth.ts                # NextAuth config
 │   ├── db.ts                  # Neon query helpers
@@ -119,3 +124,5 @@ src/
 | `GET` | `/api/documents` | List all documents (optional `?status=sent`) |
 | `GET` | `/api/documents/[id]` | Get single document with all attachments |
 | `PATCH` | `/api/documents/[id]` | Confirm receipt (add recipient photo/signature) |
+| `DELETE` | `/api/documents/[id]` | Delete document + all its attachments |
+| `POST` | `/api/documents/batch-delete` | Bulk delete `{ ids: [1, 2, 3] }` |
