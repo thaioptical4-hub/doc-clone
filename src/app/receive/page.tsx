@@ -23,11 +23,11 @@ export default function ReceivePage() {
     return () => clearInterval(interval)
   }, [])
 
-  if (loading) return <p style={{ marginTop: 24 }}>Loading...</p>
+  if (loading) return <p style={{ marginTop: 24 }}>กำลังโหลด...</p>
 
   return (
     <div style={{ marginTop: 24 }}>
-      <h2 style={{ marginBottom: 16 }}>Incoming Documents</h2>
+      <h2 style={{ marginBottom: 16 }}>เอกสารที่รอรับ</h2>
       <DocumentList documents={docs} onDelete={() => fetchDocs()} />
     </div>
   )

@@ -9,7 +9,7 @@ import type { DocumentWithAttachments } from "@/lib/types"
 
 function formatDate(iso: string) {
   const d = new Date(iso)
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString("th-TH", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -91,19 +91,19 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
     <>
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button className="btn-print" onClick={handleExport} disabled={exporting}>
-          {exporting ? "Generating PDF..." : "Export PDF"}
+          {exporting ? "กำลังสร้าง PDF..." : "ส่งออก PDF"}
         </button>
         {onDelete && (
           <button
             className="btn-danger"
             onClick={async () => {
-              if (window.confirm("Delete this document?")) {
+              if (window.confirm("ลบเอกสารนี้?")) {
                 await fetch(`/api/documents/${document.id}`, { method: "DELETE" })
                 onDelete()
               }
             }}
           >
-            Delete
+            ลบ
           </button>
         )}
       </div>
@@ -113,40 +113,40 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
         <div style={{ marginBottom: 16 }}>
           <div className="form-group" style={{ marginBottom: 8 }}>
-            <label>Sender</label>
+            <label>ผู้ส่ง</label>
             <p>{document.sender_name}</p>
           </div>
           <div className="form-group" style={{ marginBottom: 8 }}>
-            <label>Recipient</label>
+            <label>ผู้รับ</label>
             <p>{document.recipient_name}</p>
           </div>
           {document.description && (
             <div className="form-group" style={{ marginBottom: 8 }}>
-              <label>Description</label>
+              <label>คำอธิบาย</label>
               <p style={{ whiteSpace: "pre-wrap", color: "#555" }}>{document.description}</p>
             </div>
           )}
           <div className="form-group" style={{ marginBottom: 8 }}>
-            <label>Sent</label>
+            <label>วันที่ส่ง</label>
             <p>{formatDate(document.created_at)}</p>
           </div>
           {isConfirmed && (
             <div className="form-group" style={{ marginBottom: 8 }}>
-              <label>Received</label>
+              <label>วันที่รับ</label>
               <p>{formatDate(document.updated_at)}</p>
             </div>
           )}
           <div className="form-group">
-            <label>Status</label>
+            <label>สถานะ</label>
             <span className={isConfirmed ? "badge badge-confirmed" : "badge badge-sent"}>
-              {document.status}
+              {isConfirmed ? "รับแล้ว" : "รอรับ"}
             </span>
           </div>
         </div>
 
         {senderPhoto && (
           <div className="form-group">
-            <label>Sender Photo</label>
+            <label>รูปผู้ส่ง</label>
             <div className="camera-area">
               <img src={senderPhoto.data} alt="Sender" />
             </div>
@@ -155,7 +155,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
         {senderSig && (
           <div className="form-group">
-            <label>Sender Signature</label>
+            <label>ลายเซ็นผู้ส่ง</label>
             <div className="signature-area" style={{ border: "1px solid #eee" }}>
               <img src={senderSig.data} alt="Sender signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
@@ -168,7 +168,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
             {recipientPhoto && (
               <div className="form-group">
-                <label>Recipient Photo</label>
+                <label>รูปผู้รับ</label>
                 <div className="camera-area">
                   <img src={recipientPhoto.data} alt="Recipient" />
                 </div>
@@ -177,7 +177,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
             {recipientSig && (
               <div className="form-group">
-                <label>Recipient Signature</label>
+                <label>ลายเซ็นผู้รับ</label>
                 <div className="signature-area" style={{ border: "1px solid #eee" }}>
                   <img src={recipientSig.data} alt="Recipient signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
@@ -191,17 +191,17 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
             <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #eee" }} />
 
             <div className="form-group">
-              <label>Photo (optional)</label>
+              <label>รูปภาพ (ไม่บังคับ)</label>
               <CameraCapture value={photo} onChange={setPhoto} />
             </div>
 
             <div className="form-group">
-              <label>Signature (optional)</label>
+              <label>ลายเซ็น (ไม่บังคับ)</label>
               <SignaturePad value={signature} onChange={setSignature} />
             </div>
 
             <button className="btn-success" onClick={handleConfirm} disabled={confirming}>
-              {confirming ? "Confirming..." : "Confirm Receipt"}
+              {confirming ? "กำลังยืนยัน..." : "ยืนยันการรับ"}
             </button>
           </>
         )}

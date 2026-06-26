@@ -113,7 +113,7 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
       </div>
       {hasContent && (
         <button type="button" onClick={clear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-          Clear Signature
+          ลบลายเซ็น
         </button>
       )}
     </div>

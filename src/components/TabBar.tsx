@@ -7,10 +7,10 @@ export default function TabBar({ active, onChange }: TabBarProps) {
   return (
     <div className="tab-bar">
       <button className={active === "send" ? "active" : ""} onClick={() => onChange("send")}>
-        Send
+        ส่ง
       </button>
       <button className={active === "receive" ? "active" : ""} onClick={() => onChange("receive")}>
-        Receive
+        รับ
       </button>
     </div>
   )

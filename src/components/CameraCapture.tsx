@@ -40,12 +40,12 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
             <img src={value} alt="Captured" />
           </div>
           <button type="button" onClick={handleClear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-            Remove Photo
+            ลบรูปภาพ
           </button>
         </div>
       ) : (
         <button type="button" onClick={handleCapture} style={{ background: "#eee", color: "#333", width: "100%", padding: "40px" }}>
-          Take Photo
+          ถ่ายรูป
         </button>
       )}
       <input

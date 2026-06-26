@@ -22,18 +22,18 @@ function LoginForm() {
   return (
     <div className="login-page">
       <div className="card login-card">
-        <h1 style={{ textAlign: "center", marginBottom: 24 }}>Doc Delivery</h1>
+        <h1 style={{ textAlign: "center", marginBottom: 24 }}>ระบบส่งเอกสาร</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">ชื่อผู้ใช้</label>
             <input id="username" name="username" type="text" required autoFocus />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">รหัสผ่าน</label>
             <input id="password" name="password" type="password" required />
           </div>
-          {error && <p style={{ color: "#ff3b30", marginBottom: 16 }}>Invalid credentials</p>}
-          <button type="submit" className="btn-primary">Sign In</button>
+          {error && <p style={{ color: "#ff3b30", marginBottom: 16 }}>ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>}
+          <button type="submit" className="btn-primary">เข้าสู่ระบบ</button>
         </form>
       </div>
     </div>

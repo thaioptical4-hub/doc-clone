@@ -39,13 +39,13 @@ export default function ReceiveDetailPage() {
     }
   }
 
-  if (loading) return <p style={{ marginTop: 24 }}>Loading...</p>
-  if (!doc) return <p style={{ marginTop: 24 }}>Document not found</p>
+  if (loading) return <p style={{ marginTop: 24 }}>กำลังโหลด...</p>
+  if (!doc) return <p style={{ marginTop: 24 }}>ไม่พบเอกสาร</p>
 
   return (
     <div style={{ marginTop: 24 }}>
       <button className="back-button" onClick={() => router.push("/?tab=receive")} style={{ background: "none", color: "#007aff", padding: "8px 0", marginBottom: 16 }}>
-        &larr; Back
+        &larr; กลับ
       </button>
       <DocumentDetail
         document={doc}

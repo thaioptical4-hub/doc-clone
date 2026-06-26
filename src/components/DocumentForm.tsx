@@ -43,7 +43,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
       setSignature(null)
       onSuccess()
     } else {
-      setError("Failed to submit. Try again.")
+      setError("ส่งเอกสารไม่สำเร็จ กรุณาลองอีกครั้ง")
     }
     setSubmitting(false)
   }
@@ -51,39 +51,39 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="card">
       <div className="form-group">
-        <label htmlFor="doc_type">Document Type</label>
-        <input id="doc_type" name="doc_type" type="text" required placeholder="e.g. Invoice, Contract, Report..." />
+        <label htmlFor="doc_type">ประเภทเอกสาร</label>
+        <input id="doc_type" name="doc_type" type="text" required placeholder="เช่น ใบแจ้งหนี้ สัญญา รายงาน..." />
       </div>
 
       <div className="form-group">
-        <label htmlFor="description">Description (optional)</label>
-        <textarea id="description" name="description" rows={3} placeholder="Brief description of the document..." />
+        <label htmlFor="description">คำอธิบาย (ไม่บังคับ)</label>
+        <textarea id="description" name="description" rows={3} placeholder="คำอธิบายสั้นๆ ของเอกสาร..." />
       </div>
 
       <div className="form-group">
-        <label htmlFor="sender_name">Sender Name</label>
-        <input id="sender_name" name="sender_name" type="text" required placeholder="e.g. John Smith" />
+        <label htmlFor="sender_name">ชื่อผู้ส่ง</label>
+        <input id="sender_name" name="sender_name" type="text" required placeholder="เช่น สมชาย ใจดี" />
       </div>
 
       <div className="form-group">
-        <label htmlFor="recipient_name">Recipient Name</label>
-        <input id="recipient_name" name="recipient_name" type="text" required placeholder="e.g. Jane Doe" />
+        <label htmlFor="recipient_name">ชื่อผู้รับ</label>
+        <input id="recipient_name" name="recipient_name" type="text" required placeholder="เช่น สมหญิง รักดี" />
       </div>
 
       <div className="form-group">
-        <label>Photo (optional)</label>
+        <label>รูปภาพ (ไม่บังคับ)</label>
         <CameraCapture value={photo} onChange={setPhoto} />
       </div>
 
       <div className="form-group">
-        <label>Signature (optional)</label>
+        <label>ลายเซ็น (ไม่บังคับ)</label>
         <SignaturePad value={signature} onChange={setSignature} />
       </div>
 
       {error && <p style={{ color: "#ff3b30", marginBottom: 16 }}>{error}</p>}
 
       <button type="submit" className="btn-primary" disabled={submitting}>
-        {submitting ? "Sending..." : "Submit Document"}
+        {submitting ? "กำลังส่ง..." : "ส่งเอกสาร"}
       </button>
     </form>
   )

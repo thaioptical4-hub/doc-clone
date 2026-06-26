@@ -6,18 +6,23 @@ interface DocumentListProps {
   onDelete?: (id: number) => void
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  sent: "รอรับ",
+  confirmed: "รับแล้ว",
+}
+
 function statusBadge(status: string) {
   const cls = status === "sent" ? "badge badge-sent" : "badge badge-confirmed"
-  return <span className={cls}>{status}</span>
+  return <span className={cls}>{STATUS_LABEL[status] || status}</span>
 }
 
 export default function DocumentList({ documents, onDelete }: DocumentListProps) {
   if (documents.length === 0) {
     return (
       <div className="card" style={{ textAlign: "center", color: "#888" }}>
-        <p>No documents yet.</p>
+        <p>ยังไม่มีเอกสาร</p>
         <p style={{ fontSize: "0.85rem", marginTop: 4 }}>
-          Documents created on the Send tab will appear here.
+          เอกสารที่สร้างในแท็บส่งจะปรากฏที่นี่
         </p>
       </div>
     )
@@ -26,7 +31,7 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
   async function handleDelete(e: React.MouseEvent, id: number) {
     e.preventDefault()
     e.stopPropagation()
-    if (!window.confirm("Delete this document?")) return
+    if (!window.confirm("ลบเอกสารนี้?")) return
     const res = await fetch(`/api/documents/${id}`, { method: "DELETE" })
     if (res.ok) onDelete?.(id)
   }
@@ -64,7 +69,7 @@ export default function DocumentList({ documents, onDelete }: DocumentListProps)
                     cursor: "pointer",
                     padding: "4px 8px",
                   }}
-                  title="Delete"
+                  title="ลบ"
                 >
                   &times;
                 </button>

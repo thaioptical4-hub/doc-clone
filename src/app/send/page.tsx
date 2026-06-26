@@ -14,10 +14,10 @@ export default function SendPage() {
   if (submitted) {
     return (
       <div className="card" style={{ textAlign: "center", marginTop: 24 }}>
-        <h2>Document Sent</h2>
-        <p style={{ color: "#34c759", marginTop: 8 }}>The recipient can now confirm it on the Receive tab.</p>
+        <h2>ส่งเอกสารแล้ว</h2>
+        <p style={{ color: "#34c759", marginTop: 8 }}>ผู้รับสามารถยืนยันการรับได้ที่แท็บรับเอกสาร</p>
         <button className="btn-primary" style={{ marginTop: 16 }} onClick={() => setSubmitted(false)}>
-          Send Another
+          ส่งอีกฉบับ
         </button>
       </div>
     )
@@ -25,7 +25,7 @@ export default function SendPage() {
 
   return (
     <div style={{ marginTop: 24 }}>
-      <h2 style={{ marginBottom: 16 }}>Send Document</h2>
+      <h2 style={{ marginBottom: 16 }}>ส่งเอกสาร</h2>
       <DocumentForm onSuccess={handleSuccess} />
     </div>
   )
