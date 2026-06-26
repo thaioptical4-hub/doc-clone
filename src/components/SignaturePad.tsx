@@ -9,9 +9,9 @@ interface SignaturePadProps {
 
 export default function SignaturePad({ value, onChange }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isDrawing, setIsDrawing] = useState(false)
   const [hasContent, setHasContent] = useState(false)
-  const lastPoint = useRef<{ x: number; y: number } | null>(null)
+  const drawingRef = useRef(false)
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null)
 
   const getPos = useCallback((e: PointerEvent) => {
     const canvas = canvasRef.current
@@ -31,6 +31,7 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
     if (!ctx) return
 
     const resize = () => {
+      const prev = ctx.getImageData(0, 0, canvas.width, canvas.height)
       const rect = canvas.parentElement!.getBoundingClientRect()
       canvas.width = rect.width * window.devicePixelRatio
       canvas.height = rect.height * window.devicePixelRatio
@@ -39,6 +40,9 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
       ctx.lineWidth = 2.5
       ctx.lineCap = "round"
       ctx.lineJoin = "round"
+      if (prev.data.some((b) => b !== 0)) {
+        ctx.putImageData(prev, 0, 0)
+      }
     }
 
     resize()
@@ -49,34 +53,33 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
       const pos = getPos(e)
       ctx!.beginPath()
       ctx!.moveTo(pos.x, pos.y)
-      lastPoint.current = pos
-      setIsDrawing(true)
+      lastPointRef.current = pos
+      drawingRef.current = true
       canvas!.setPointerCapture(e.pointerId)
     }
 
     function move(e: PointerEvent) {
-      if (!isDrawing) return
+      if (!drawingRef.current) return
       e.preventDefault()
       const pos = getPos(e)
-      if (lastPoint.current) {
-        const prev = lastPoint.current
+      if (lastPointRef.current) {
+        const prev = lastPointRef.current
         const mid = { x: (prev.x + pos.x) / 2, y: (prev.y + pos.y) / 2 }
         ctx!.quadraticCurveTo(prev.x, prev.y, mid.x, mid.y)
         ctx!.stroke()
         ctx!.beginPath()
         ctx!.moveTo(mid.x, mid.y)
       }
-      lastPoint.current = pos
+      lastPointRef.current = pos
     }
 
     function end() {
-      if (isDrawing) {
-        setIsDrawing(false)
-        lastPoint.current = null
-        setHasContent(true)
-        const svg = toSVG(canvas!)
-        onChange(svg)
-      }
+      if (!drawingRef.current) return
+      drawingRef.current = false
+      lastPointRef.current = null
+      setHasContent(true)
+      const svg = toSVG(canvas!)
+      onChange(svg)
     }
 
     canvas.addEventListener("pointerdown", start)
@@ -91,7 +94,7 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
       canvas.removeEventListener("pointerup", end)
       canvas.removeEventListener("pointerleave", end)
     }
-  }, [isDrawing, getPos, onChange])
+  }, [getPos, onChange])
 
   function clear() {
     const canvas = canvasRef.current
