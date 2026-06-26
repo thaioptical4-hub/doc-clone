@@ -75,6 +75,15 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
+## Security
+
+| Measure | What it does |
+|---|---|
+| **Rate limiting** | Login endpoint: 5 attempts / minute / IP. Returns 429 on excess. |
+| **Session expiry** | JWT session expires after 8 hours. Re-login required. |
+| **CSP headers** | `Content-Security-Policy` restricts script/style/img/form sources to origin. |
+| **Attachment validation** | Only `data:image/` payloads accepted. Max 5 MB per attachment. |
+
 ## Commands
 
 | Command | Purpose |

@@ -115,7 +115,11 @@ doc-delivery/
 | **Signatures** | `<canvas>` + PointerEvent | Apple Pencil pressure and azimuth via PointerEvent API, export SVG for compact storage |
 | **Camera** | `<input capture="environment">` | Works in Safari on iPad, opens camera directly, no permissions dance |
 | **Hosting** | Vercel | Free tier (100GB bandwidth, custom domain support). One click deploy from repo |
-| **Language** | Thai (th-TH) | UI text, date formatting (Buddhist calendar), status labels all in Thai | | 
+| **Language** | Thai (th-TH) | UI text, date formatting (Buddhist calendar), status labels all in Thai |
+| **Rate limiting** | In-memory Map in middleware | 5 login attempts/min/IP, no external dependency |
+| **Session maxAge** | NextAuth JWT: 8 hours | Balances convenience with exposure window |
+| **CSP** | Header on every response | Restricts to self, data:, blob: for images; no frame ancestors |
+| **Attachment validation** | Base64 prefix + size check in db.ts | Rejects non-image data and oversized payloads |
 | **Doc type** | Free-text `<input>` | Replaced dropdown/select after requirements changed; no predefined enum needed |
 | **PDF export (single)** | html2canvas + jsPDF | Captures rendered card DOM to canvas, embeds in A4 PDF. Share via navigator.share on iPad |
 | **PDF export (all)** | jsPDF text render | Iterates documents, draws text rows per page. No DOM rendering needed |
@@ -165,6 +169,12 @@ Project deployable via Vercel with documented env vars and README instructions f
 - Multi-select batch delete with confirm dialog
 - Individual delete with confirm overlay (no window.confirm — iOS PWA safe)
 - "Send Another" button after successful submission
+
+### Phase 4 — Security ✓
+- [x] Rate limit login (5 attempts/min/IP)
+- [x] Session maxAge (8h JWT expiry)
+- [x] CSP headers on all responses
+- [x] Attachment data validation (format + size)
 
 ### Phase 4 — Offline Support
 Service worker for basic offline document viewing.
