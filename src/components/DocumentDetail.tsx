@@ -21,9 +21,10 @@ function formatDate(iso: string) {
 interface DocumentDetailProps {
   document: DocumentWithAttachments
   onConfirm: (photo?: string, signature?: string) => Promise<void>
+  onDelete?: () => void
 }
 
-export default function DocumentDetail({ document, onConfirm }: DocumentDetailProps) {
+export default function DocumentDetail({ document, onConfirm, onDelete }: DocumentDetailProps) {
   const [photo, setPhoto] = useState<string | null>(null)
   const [signature, setSignature] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
@@ -88,9 +89,24 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
 
   return (
     <>
-      <button className="btn-print" onClick={handleExport} disabled={exporting}>
-        {exporting ? "Generating PDF..." : "Export PDF"}
-      </button>
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <button className="btn-print" onClick={handleExport} disabled={exporting}>
+          {exporting ? "Generating PDF..." : "Export PDF"}
+        </button>
+        {onDelete && (
+          <button
+            className="btn-danger"
+            onClick={async () => {
+              if (window.confirm("Delete this document?")) {
+                await fetch(`/api/documents/${document.id}`, { method: "DELETE" })
+                onDelete()
+              }
+            }}
+          >
+            Delete
+          </button>
+        )}
+      </div>
 
       <div className="card" ref={printRef}>
         <h3 style={{ marginBottom: 8 }}>{document.doc_type}</h3>

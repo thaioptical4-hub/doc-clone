@@ -28,7 +28,7 @@ export default function ReceivePage() {
   return (
     <div style={{ marginTop: 24 }}>
       <h2 style={{ marginBottom: 16 }}>Incoming Documents</h2>
-      <DocumentList documents={docs} />
+      <DocumentList documents={docs} onDelete={() => fetchDocs()} />
     </div>
   )
 }

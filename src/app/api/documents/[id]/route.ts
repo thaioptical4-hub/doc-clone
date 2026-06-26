@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getDocument, confirmDocument } from "@/lib/db"
+import { getDocument, confirmDocument, deleteDocument } from "@/lib/db"
 
 export async function GET(
   _request: Request,
@@ -32,5 +32,19 @@ export async function PATCH(
   } catch (error) {
     console.error("PATCH /api/documents/[id] error:", error)
     return NextResponse.json({ error: "Failed to update document" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    await deleteDocument(Number(id))
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("DELETE /api/documents/[id] error:", error)
+    return NextResponse.json({ error: "Failed to delete document" }, { status: 500 })
   }
 }

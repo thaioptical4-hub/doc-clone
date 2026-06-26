@@ -63,4 +63,9 @@ async function addAttachment(documentId: number, kind: AttachmentKind, data: str
   `
 }
 
+export async function deleteDocument(id: number) {
+  await sql`DELETE FROM attachments WHERE document_id = ${id}`
+  await sql`DELETE FROM documents WHERE id = ${id}`
+}
+
 export { sql }
