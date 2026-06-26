@@ -1,27 +1,29 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 
 function LoginForm() {
   const searchParams = useSearchParams()
   const error = searchParams.get("error")
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    await signIn("credentials", {
+      username: form.get("username") as string,
+      password: form.get("password") as string,
+      redirect: true,
+      callbackUrl: "/",
+    })
+  }
+
   return (
     <div className="login-page">
       <div className="card login-card">
         <h1 style={{ textAlign: "center", marginBottom: 24 }}>Doc Delivery</h1>
-        <form
-          action={async (formData) => {
-            await signIn("credentials", {
-              username: formData.get("username") as string,
-              password: formData.get("password") as string,
-              redirect: true,
-              callbackUrl: "/",
-            })
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input id="username" name="username" type="text" required autoFocus />

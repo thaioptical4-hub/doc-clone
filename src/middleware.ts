@@ -7,11 +7,12 @@ export async function middleware(request: NextRequest) {
 
   const isAuthPage = request.nextUrl.pathname.startsWith("/login")
   const isApiRoute = request.nextUrl.pathname.startsWith("/api")
+  const isNextAuthRoute = request.nextUrl.pathname.startsWith("/api/auth")
   const isPublic = [".svg", ".png", ".ico", "manifest.json"].some((ext) =>
     request.nextUrl.pathname.endsWith(ext)
   )
 
-  if (isPublic) return NextResponse.next()
+  if (isPublic || isNextAuthRoute) return NextResponse.next()
   if (isAuthPage) {
     if (isAuth) return NextResponse.redirect(new URL("/", request.url))
     return NextResponse.next()
