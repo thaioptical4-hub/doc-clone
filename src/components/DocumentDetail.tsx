@@ -29,7 +29,7 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
 
   return (
     <div className="card">
-      <h3 style={{ textTransform: "capitalize", marginBottom: 8 }}>{document.doc_type}</h3>
+      <h3 style={{ marginBottom: 8 }}>{document.doc_type}</h3>
 
       <div style={{ marginBottom: 16 }}>
         <div className="form-group" style={{ marginBottom: 8 }}>
@@ -40,6 +40,12 @@ export default function DocumentDetail({ document, onConfirm }: DocumentDetailPr
           <label>Recipient</label>
           <p>{document.recipient_name}</p>
         </div>
+        {document.description && (
+          <div className="form-group" style={{ marginBottom: 8 }}>
+            <label>Description</label>
+            <p style={{ whiteSpace: "pre-wrap", color: "#555" }}>{document.description}</p>
+          </div>
+        )}
         <div className="form-group">
           <label>Status</label>
           <span className={isConfirmed ? "badge badge-confirmed" : "badge badge-sent"}>

@@ -4,14 +4,6 @@ import { useState, useRef } from "react"
 import CameraCapture from "./CameraCapture"
 import SignaturePad from "./SignaturePad"
 
-const DOC_TYPES = [
-  { value: "invoice", label: "Invoice" },
-  { value: "packing_slip", label: "Packing Slip" },
-  { value: "contract", label: "Contract" },
-  { value: "report", label: "Report" },
-  { value: "other", label: "Other" },
-]
-
 interface DocumentFormProps {
   onSuccess: () => void
 }
@@ -33,6 +25,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
       doc_type: form.get("doc_type"),
       sender_name: form.get("sender_name"),
       recipient_name: form.get("recipient_name"),
+      description: form.get("description") || undefined,
     }
 
     if (photo) body.photo_sender = photo
@@ -59,16 +52,12 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
     <form ref={formRef} onSubmit={handleSubmit} className="card">
       <div className="form-group">
         <label htmlFor="doc_type">Document Type</label>
-        <select id="doc_type" name="doc_type" required defaultValue="">
-          <option value="" disabled>
-            Select type...
-          </option>
-          {DOC_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+        <input id="doc_type" name="doc_type" type="text" required placeholder="e.g. Invoice, Contract, Report..." />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="description">Description (optional)</label>
+        <textarea id="description" name="description" rows={3} placeholder="Brief description of the document..." />
       </div>
 
       <div className="form-group">

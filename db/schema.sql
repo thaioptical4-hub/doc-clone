@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS documents (
   doc_type VARCHAR(50) NOT NULL,
   sender_name VARCHAR(255) NOT NULL,
   recipient_name VARCHAR(255) NOT NULL,
+  description TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'sent',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

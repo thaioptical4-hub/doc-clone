@@ -9,6 +9,7 @@ export async function POST(request: Request) {
       doc_type: body.doc_type,
       sender_name: body.sender_name,
       recipient_name: body.recipient_name,
+      description: body.description,
       photo_sender: body.photo_sender,
       signature_sender: body.signature_sender,
     })

@@ -1,5 +1,3 @@
-export type DocType = "invoice" | "packing_slip" | "contract" | "report" | "other"
-
 export type DocStatus = "sent" | "confirmed"
 
 export type AttachmentKind =
@@ -10,9 +8,10 @@ export type AttachmentKind =
 
 export interface Document {
   id: number
-  doc_type: DocType
+  doc_type: string
   sender_name: string
   recipient_name: string
+  description: string | null
   status: DocStatus
   created_at: string
   updated_at: string

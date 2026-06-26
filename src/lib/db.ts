@@ -7,12 +7,13 @@ export async function createDocument(params: {
   doc_type: string
   sender_name: string
   recipient_name: string
+  description?: string
   photo_sender?: string
   signature_sender?: string
 }): Promise<Document> {
   const rows = await sql`
-    INSERT INTO documents (doc_type, sender_name, recipient_name, status)
-    VALUES (${params.doc_type}, ${params.sender_name}, ${params.recipient_name}, 'sent')
+    INSERT INTO documents (doc_type, sender_name, recipient_name, description, status)
+    VALUES (${params.doc_type}, ${params.sender_name}, ${params.recipient_name}, ${params.description || null}, 'sent')
     RETURNING *
   `
   const doc = rows[0] as Document
