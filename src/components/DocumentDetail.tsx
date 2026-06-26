@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import { jsPDF } from "jspdf"
 import html2canvas from "html2canvas"
 import CameraCapture from "./CameraCapture"
@@ -29,6 +29,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
   const [signature, setSignature] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
   const senderPhoto = document.attachments.find((a) => a.kind === "photo_sender")
@@ -94,17 +95,41 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           {exporting ? "กำลังสร้าง PDF..." : "ส่งออก PDF"}
         </button>
         {onDelete && (
-          <button
-            className="btn-danger"
-            onClick={async () => {
-              if (window.confirm("ลบเอกสารนี้?")) {
-                await fetch(`/api/documents/${document.id}`, { method: "DELETE" })
-                onDelete()
-              }
-            }}
-          >
-            ลบ
-          </button>
+          <>
+            <button
+              className="btn-danger"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              ลบ
+            </button>
+            {showDeleteConfirm && (
+              <div className="overlay" onClick={() => setShowDeleteConfirm(false)}>
+                <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+                  <p style={{ marginBottom: 20, fontSize: "1.1rem" }}>ลบเอกสารนี้?</p>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button
+                      className="btn-danger"
+                      onClick={async () => {
+                        setShowDeleteConfirm(false)
+                        await fetch(`/api/documents/${document.id}`, { method: "DELETE" })
+                        onDelete()
+                      }}
+                      style={{ flex: 1 }}
+                    >
+                      ลบ
+                    </button>
+                    <button
+                      className="btn-primary"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      style={{ flex: 1, background: "#888" }}
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
