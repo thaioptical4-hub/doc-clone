@@ -197,3 +197,40 @@ button:active {
   max-width: 360px;
   padding: 32px;
 }
+
+.btn-print {
+  width: 100%;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .tab-bar,
+  .btn-primary,
+  .btn-success,
+  .btn-danger,
+  .btn-print,
+  .back-button {
+    display: none !important;
+  }
+  .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+  .print-area {
+    break-inside: avoid;
+  }
+  .signature-area {
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+  .camera-area {
+    page-break-inside: avoid;
+  }
+}
