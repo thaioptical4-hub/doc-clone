@@ -181,7 +181,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
         {senderSig && (
           <div className="form-group">
             <label>ลายเซ็นผู้ส่ง</label>
-            <div className="signature-area" style={{ border: "1px solid #eee" }}>
+            <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
               <img src={senderSig.data} alt="Sender signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
           </div>
@@ -203,7 +203,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
             {recipientSig && (
               <div className="form-group">
                 <label>ลายเซ็นผู้รับ</label>
-                <div className="signature-area" style={{ border: "1px solid #eee" }}>
+                <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
                   <img src={recipientSig.data} alt="Recipient signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
         {!isConfirmed && (
           <>
-            <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #eee" }} />
+            <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #e6edf6" }} />
 
             <div className="form-group">
               <label>รูปภาพ (ไม่บังคับ)</label>
