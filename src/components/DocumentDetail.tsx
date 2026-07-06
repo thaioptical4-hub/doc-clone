@@ -137,13 +137,15 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
         <h3 style={{ marginBottom: 8 }}>{document.doc_type}</h3>
 
         <div style={{ marginBottom: 16 }}>
-          <div className="form-group" style={{ marginBottom: 8 }}>
-            <label>ผู้ส่ง</label>
-            <p>{document.sender_name}</p>
-          </div>
-          <div className="form-group" style={{ marginBottom: 8 }}>
-            <label>ผู้รับ</label>
-            <p>{document.recipient_name}</p>
+          <div className="form-row">
+            <div className="form-group" style={{ marginBottom: 8 }}>
+              <label>ผู้ส่ง</label>
+              <p>{document.sender_name}</p>
+            </div>
+            <div className="form-group" style={{ marginBottom: 8 }}>
+              <label>ผู้รับ</label>
+              <p>{document.recipient_name}</p>
+            </div>
           </div>
           {document.description && (
             <div className="form-group" style={{ marginBottom: 8 }}>
@@ -169,21 +171,25 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           </div>
         </div>
 
-        {senderPhoto && (
-          <div className="form-group">
-            <label>รูปผู้ส่ง</label>
-            <div className="camera-area">
-              <img src={senderPhoto.data} alt="Sender" />
-            </div>
-          </div>
-        )}
+        {(senderPhoto || senderSig) && (
+          <div className="form-row">
+            {senderPhoto && (
+              <div className="form-group">
+                <label>รูปผู้ส่ง</label>
+                <div className="camera-area">
+                  <img src={senderPhoto.data} alt="Sender" />
+                </div>
+              </div>
+            )}
 
-        {senderSig && (
-          <div className="form-group">
-            <label>ลายเซ็นผู้ส่ง</label>
-            <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
-              <img src={senderSig.data} alt="Sender signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-            </div>
+            {senderSig && (
+              <div className="form-group">
+                <label>ลายเซ็นผู้ส่ง</label>
+                <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
+                  <img src={senderSig.data} alt="Sender signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -191,21 +197,25 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           <>
             <hr style={{ margin: "20px 0", border: "none", borderTop: "2px solid #34c759" }} />
 
-            {recipientPhoto && (
-              <div className="form-group">
-                <label>รูปผู้รับ</label>
-                <div className="camera-area">
-                  <img src={recipientPhoto.data} alt="Recipient" />
-                </div>
-              </div>
-            )}
+            {(recipientPhoto || recipientSig) && (
+              <div className="form-row">
+                {recipientPhoto && (
+                  <div className="form-group">
+                    <label>รูปผู้รับ</label>
+                    <div className="camera-area">
+                      <img src={recipientPhoto.data} alt="Recipient" />
+                    </div>
+                  </div>
+                )}
 
-            {recipientSig && (
-              <div className="form-group">
-                <label>ลายเซ็นผู้รับ</label>
-                <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
-                  <img src={recipientSig.data} alt="Recipient signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                </div>
+                {recipientSig && (
+                  <div className="form-group">
+                    <label>ลายเซ็นผู้รับ</label>
+                    <div className="signature-area" style={{ border: "1px solid #d7e3f0" }}>
+                      <img src={recipientSig.data} alt="Recipient signature" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -215,14 +225,16 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           <>
             <hr style={{ margin: "20px 0", border: "none", borderTop: "1px solid #e6edf6" }} />
 
-            <div className="form-group">
-              <label>รูปภาพ (ไม่บังคับ)</label>
-              <CameraCapture value={photo} onChange={setPhoto} />
-            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>รูปภาพ (ไม่บังคับ)</label>
+                <CameraCapture value={photo} onChange={setPhoto} />
+              </div>
 
-            <div className="form-group">
-              <label>ลายเซ็น (ไม่บังคับ)</label>
-              <SignaturePad value={signature} onChange={setSignature} />
+              <div className="form-group">
+                <label>ลายเซ็น (ไม่บังคับ)</label>
+                <SignaturePad value={signature} onChange={setSignature} />
+              </div>
             </div>
 
             <button className="btn-success" onClick={handleConfirm} disabled={confirming}>

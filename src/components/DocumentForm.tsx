@@ -60,24 +60,28 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
         <textarea id="description" name="description" rows={3} placeholder="คำอธิบายสั้นๆ ของเอกสาร..." />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="sender_name">ชื่อผู้ส่ง</label>
-        <input id="sender_name" name="sender_name" type="text" required placeholder="เช่น สมชาย ใจดี" />
+      <div className="form-row">
+        <div className="form-group">
+          <label htmlFor="sender_name">ชื่อผู้ส่ง</label>
+          <input id="sender_name" name="sender_name" type="text" required placeholder="เช่น สมชาย ใจดี" />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="recipient_name">ชื่อผู้รับ</label>
+          <input id="recipient_name" name="recipient_name" type="text" required placeholder="เช่น สมหญิง รักดี" />
+        </div>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="recipient_name">ชื่อผู้รับ</label>
-        <input id="recipient_name" name="recipient_name" type="text" required placeholder="เช่น สมหญิง รักดี" />
-      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>รูปภาพ (ไม่บังคับ)</label>
+          <CameraCapture value={photo} onChange={setPhoto} />
+        </div>
 
-      <div className="form-group">
-        <label>รูปภาพ (ไม่บังคับ)</label>
-        <CameraCapture value={photo} onChange={setPhoto} />
-      </div>
-
-      <div className="form-group">
-        <label>ลายเซ็น (ไม่บังคับ)</label>
-        <SignaturePad value={signature} onChange={setSignature} />
+        <div className="form-group">
+          <label>ลายเซ็น (ไม่บังคับ)</label>
+          <SignaturePad value={signature} onChange={setSignature} />
+        </div>
       </div>
 
       {error && <p style={{ color: "#ff3b30", marginBottom: 16 }}>{error}</p>}
