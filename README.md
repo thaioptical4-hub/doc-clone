@@ -61,10 +61,11 @@ Import this repo into [Vercel](https://vercel.com) and set these environment var
 | `NEXTAUTH_URL` | Your Vercel URL (e.g. `https://doc-delivery.vercel.app`) |
 | `APP_USER` | Login username (e.g. `admin`) |
 | `APP_PASS` | Login password |
-| `GOOGLE_CLIENT_ID` | (optional) OAuth client ID for Drive backup |
-| `GOOGLE_CLIENT_SECRET` | (optional) OAuth client secret for Drive backup |
-| `GOOGLE_REFRESH_TOKEN` | (optional) OAuth refresh token for Drive backup |
+| `GOOGLE_CLIENT_ID` | (optional) OAuth client ID for Drive/Sheets backup |
+| `GOOGLE_CLIENT_SECRET` | (optional) OAuth client secret for Drive/Sheets backup |
+| `GOOGLE_REFRESH_TOKEN` | (optional) OAuth refresh token for Drive/Sheets backup |
 | `GOOGLE_DRIVE_FOLDER_ID` | (optional) Drive folder to upload into (defaults to My Drive root) |
+| `GOOGLE_SHEET_ID` | (optional) Spreadsheet ID for the document activity log |
 
 ### 4. Open on both iPads
 
@@ -79,15 +80,15 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-## Google Drive Backup
+## Google Drive/Sheets Backup
 
-When Tablet 2 confirms receipt, the app uploads every photo and signature attached to that document (sender's and recipient's) straight to a Google Drive account as separate image files — no manual export needed. If Drive isn't configured, this step is silently skipped and confirmation still works normally.
+**Send**: when Tablet 1 submits a document, a row is appended to a Google Sheet (doc type, sender, recipient, description, sent time, status). **Receive**: when Tablet 2 confirms receipt, that same row is updated (status, confirm time) and every photo/signature attached to the document (sender's and recipient's) is uploaded to Google Drive as a separate image file, with links added back into the row. If Drive/Sheets aren't configured, both steps are silently skipped and the app still works normally.
 
-Files land directly in `thaioptical4@gmail.com`'s My Drive (or a specific folder, via `GOOGLE_DRIVE_FOLDER_ID`), because the integration uses that account's own OAuth credentials rather than a service account.
+Everything lands in `thaioptical4@gmail.com`'s own Drive/Sheets (not a service account), because the integration uses that account's own OAuth credentials.
 
 ### One-time setup
 
-1. In [Google Cloud Console](https://console.cloud.google.com), create a project and enable the **Google Drive API**.
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project and enable the **Google Drive API** and **Google Sheets API**.
 2. Configure the OAuth consent screen (External; add `thaioptical4@gmail.com` as a test user).
 3. Create an **OAuth Client ID** of type **Desktop app**. Copy the client ID and secret.
 4. Run the helper script locally to get a refresh token:
@@ -95,9 +96,14 @@ Files land directly in `thaioptical4@gmail.com`'s My Drive (or a specific folder
    GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=yyy node scripts/get-google-refresh-token.mjs
    ```
 5. Open the printed URL, sign in as `thaioptical4@gmail.com`, approve access.
-6. Copy the three printed values (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`) into `.env.local` (dev) and your Vercel project's environment variables (production).
+6. Create the log spreadsheet (reuses the same credentials):
+   ```bash
+   GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=yyy GOOGLE_REFRESH_TOKEN=zzz node scripts/create-google-sheet.mjs
+   ```
+7. Copy the four printed/obtained values (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_SHEET_ID`) into `.env.local` (dev) and your Vercel project's environment variables (production).
+8. Run the migration in `db/schema.sql` again against your Neon database — it adds the `sheet_row` column needed to match each document to its spreadsheet row (safe to re-run; existing tables/data are untouched).
 
-The integration only requests the `drive.file` scope — it can create/manage files it uploads, not read the rest of the Drive.
+The integration only requests the `drive.file` scope — it can create/manage files and sheets it creates, not read the rest of the Drive.
 
 ## Security
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { createDocument, getDocuments } from "@/lib/db"
+import { createDocument, getDocuments, setSheetRow } from "@/lib/db"
+import { appendDocumentRow } from "@/lib/googleSheets"
 import type { DocStatus } from "@/lib/types"
 
 export async function POST(request: Request) {
@@ -13,6 +14,14 @@ export async function POST(request: Request) {
       photo_sender: body.photo_sender,
       signature_sender: body.signature_sender,
     })
+
+    try {
+      const row = await appendDocumentRow(doc)
+      if (row) await setSheetRow(doc.id, row)
+    } catch (sheetError) {
+      console.error("Google Sheets logging failed for document", doc.id, sheetError)
+    }
+
     return NextResponse.json(doc, { status: 201 })
   } catch (error) {
     console.error("POST /api/documents error:", error)

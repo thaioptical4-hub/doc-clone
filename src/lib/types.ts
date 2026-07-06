@@ -15,6 +15,7 @@ export interface Document {
   status: DocStatus
   created_at: string
   updated_at: string
+  sheet_row: number | null
 }
 
 export interface Attachment {

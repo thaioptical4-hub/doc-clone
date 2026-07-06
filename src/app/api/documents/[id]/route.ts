@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server"
 import { getDocument, confirmDocument, deleteDocument } from "@/lib/db"
 import { parseImageDataUrl, uploadFileToDrive } from "@/lib/googleDrive"
+import { updateDocumentRow } from "@/lib/googleSheets"
+import type { AttachmentKind } from "@/lib/types"
+
+const LINK_FIELD: Record<AttachmentKind, "senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature"> = {
+  photo_sender: "senderPhoto",
+  signature_sender: "senderSignature",
+  photo_recipient: "recipientPhoto",
+  signature_recipient: "recipientSignature",
+}
 
 export async function GET(
   _request: Request,
@@ -32,13 +41,20 @@ export async function PATCH(
 
     try {
       const docLabel = doc.doc_type.replace(/\s+/g, "-")
+      const links: Partial<Record<"senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature", string>> = {}
+
       for (const attachment of doc.attachments) {
         const { buffer, mimeType, extension } = parseImageDataUrl(attachment.data)
         const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}.${extension}`
-        await uploadFileToDrive(buffer, filename, mimeType)
+        const uploaded = await uploadFileToDrive(buffer, filename, mimeType)
+        if (uploaded) links[LINK_FIELD[attachment.kind]] = uploaded.webViewLink
+      }
+
+      if (doc.sheet_row) {
+        await updateDocumentRow(doc.sheet_row, { updated_at: doc.updated_at, links })
       }
     } catch (driveError) {
-      console.error("Google Drive backup failed for document", id, driveError)
+      console.error("Google Drive/Sheets backup failed for document", id, driveError)
     }
 
     return NextResponse.json(doc)

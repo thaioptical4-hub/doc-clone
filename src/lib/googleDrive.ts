@@ -1,17 +1,4 @@
-import { OAuth2Client } from "google-auth-library"
-
-let client: OAuth2Client | null = null
-
-function getClient(): OAuth2Client | null {
-  if (client) return client
-  const clientId = process.env.GOOGLE_CLIENT_ID
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN
-  if (!clientId || !clientSecret || !refreshToken) return null
-  client = new OAuth2Client(clientId, clientSecret)
-  client.setCredentials({ refresh_token: refreshToken })
-  return client
-}
+import { getGoogleAccessToken } from "./googleAuth"
 
 /** Splits a `data:image/...;base64,...` URL into its raw bytes, mime type, and file extension. */
 export function parseImageDataUrl(dataUrl: string): { buffer: Buffer; mimeType: string; extension: string } {
@@ -22,13 +9,14 @@ export function parseImageDataUrl(dataUrl: string): { buffer: Buffer; mimeType: 
   return { buffer: Buffer.from(match[3], "base64"), mimeType, extension }
 }
 
-/** Uploads a file to the configured Google Drive account. Returns the Drive file id, or null if Drive isn't configured. */
-export async function uploadFileToDrive(buffer: Buffer, filename: string, mimeType: string): Promise<string | null> {
-  const oauth2Client = getClient()
-  if (!oauth2Client) return null
-
-  const { token } = await oauth2Client.getAccessToken()
-  if (!token) throw new Error("Failed to obtain Google access token")
+/** Uploads a file to the configured Google Drive account. Returns its id and viewable link, or null if Drive isn't configured. */
+export async function uploadFileToDrive(
+  buffer: Buffer,
+  filename: string,
+  mimeType: string
+): Promise<{ id: string; webViewLink: string } | null> {
+  const token = await getGoogleAccessToken()
+  if (!token) return null
 
   const metadata: Record<string, unknown> = {
     name: filename,
@@ -53,7 +41,7 @@ export async function uploadFileToDrive(buffer: Buffer, filename: string, mimeTy
   ])
 
   const res = await fetch(
-    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+    "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink",
     {
       method: "POST",
       headers: {
@@ -69,6 +57,5 @@ export async function uploadFileToDrive(buffer: Buffer, filename: string, mimeTy
     throw new Error(`Google Drive upload failed (${res.status}): ${text}`)
   }
 
-  const json = (await res.json()) as { id: string }
-  return json.id
+  return (await res.json()) as { id: string; webViewLink: string }
 }

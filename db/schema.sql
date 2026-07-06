@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS documents (
   description TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'sent',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  sheet_row INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS attachments (
@@ -19,3 +20,6 @@ CREATE TABLE IF NOT EXISTS attachments (
 
 CREATE INDEX idx_documents_status ON documents(status);
 CREATE INDEX idx_attachments_document_id ON attachments(document_id);
+
+-- Safe to re-run against an existing database created before sheet_row existed.
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS sheet_row INTEGER;

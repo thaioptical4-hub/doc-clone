@@ -56,6 +56,10 @@ export async function confirmDocument(
   return getDocument(id)
 }
 
+export async function setSheetRow(id: number, row: number) {
+  await sql`UPDATE documents SET sheet_row = ${row} WHERE id = ${id}`
+}
+
 async function addAttachment(documentId: number, kind: AttachmentKind, data: string) {
   if (!data.startsWith("data:image/")) {
     throw new Error("Invalid attachment format")
