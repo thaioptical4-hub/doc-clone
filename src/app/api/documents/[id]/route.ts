@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDocument, confirmDocument, deleteDocument } from "@/lib/db"
-import { generateDocumentPdf } from "@/lib/pdf"
-import { uploadPdfToDrive } from "@/lib/googleDrive"
+import { parseImageDataUrl, uploadFileToDrive } from "@/lib/googleDrive"
 
 export async function GET(
   _request: Request,
@@ -32,9 +31,12 @@ export async function PATCH(
     if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
     try {
-      const pdf = generateDocumentPdf(doc)
-      const filename = `doc-${doc.id}-${doc.doc_type.replace(/\s+/g, "-")}.pdf`
-      await uploadPdfToDrive(pdf, filename)
+      const docLabel = doc.doc_type.replace(/\s+/g, "-")
+      for (const attachment of doc.attachments) {
+        const { buffer, mimeType, extension } = parseImageDataUrl(attachment.data)
+        const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}.${extension}`
+        await uploadFileToDrive(buffer, filename, mimeType)
+      }
     } catch (driveError) {
       console.error("Google Drive backup failed for document", id, driveError)
     }

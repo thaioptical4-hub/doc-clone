@@ -13,8 +13,17 @@ function getClient(): OAuth2Client | null {
   return client
 }
 
-/** Uploads a PDF to the configured Google Drive account. Returns the Drive file id, or null if Drive isn't configured. */
-export async function uploadPdfToDrive(buffer: Buffer, filename: string): Promise<string | null> {
+/** Splits a `data:image/...;base64,...` URL into its raw bytes, mime type, and file extension. */
+export function parseImageDataUrl(dataUrl: string): { buffer: Buffer; mimeType: string; extension: string } {
+  const match = /^data:(image\/(png|jpe?g|webp));base64,(.+)$/i.exec(dataUrl)
+  if (!match) throw new Error("Invalid image data URL")
+  const mimeType = match[1].toLowerCase()
+  const extension = mimeType === "image/jpeg" ? "jpg" : mimeType.split("/")[1]
+  return { buffer: Buffer.from(match[3], "base64"), mimeType, extension }
+}
+
+/** Uploads a file to the configured Google Drive account. Returns the Drive file id, or null if Drive isn't configured. */
+export async function uploadFileToDrive(buffer: Buffer, filename: string, mimeType: string): Promise<string | null> {
   const oauth2Client = getClient()
   if (!oauth2Client) return null
 
@@ -23,7 +32,7 @@ export async function uploadPdfToDrive(buffer: Buffer, filename: string): Promis
 
   const metadata: Record<string, unknown> = {
     name: filename,
-    mimeType: "application/pdf",
+    mimeType,
   }
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID
   if (folderId) metadata.parents = [folderId]
@@ -33,7 +42,7 @@ export async function uploadPdfToDrive(buffer: Buffer, filename: string): Promis
     `--${boundary}\r\n` +
     `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
     `${JSON.stringify(metadata)}\r\n`
-  const filePartHeader = `--${boundary}\r\nContent-Type: application/pdf\r\n\r\n`
+  const filePartHeader = `--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n`
   const closing = `\r\n--${boundary}--`
 
   const body = Buffer.concat([

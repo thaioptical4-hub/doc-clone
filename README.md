@@ -81,7 +81,7 @@ npm run dev
 
 ## Google Drive Backup
 
-When Tablet 2 confirms receipt, the app generates a one-page PDF of the full document (sender/recipient info, photos, signatures) and uploads it to a Google Drive account — no manual export needed. If Drive isn't configured, this step is silently skipped and confirmation still works normally.
+When Tablet 2 confirms receipt, the app uploads every photo and signature attached to that document (sender's and recipient's) straight to a Google Drive account as separate image files — no manual export needed. If Drive isn't configured, this step is silently skipped and confirmation still works normally.
 
 Files land directly in `thaioptical4@gmail.com`'s My Drive (or a specific folder, via `GOOGLE_DRIVE_FOLDER_ID`), because the integration uses that account's own OAuth credentials rather than a service account.
 
