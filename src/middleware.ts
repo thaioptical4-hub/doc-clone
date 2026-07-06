@@ -37,6 +37,7 @@ export async function middleware(request: NextRequest) {
   const isPublic = [".svg", ".png", ".ico", "manifest.json"].some((ext) =>
     request.nextUrl.pathname.endsWith(ext)
   )
+  const isInternalRoute = request.nextUrl.pathname.startsWith("/api/internal")
 
   if (
     request.nextUrl.pathname === "/api/auth/callback/credentials" &&
@@ -54,7 +55,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (isPublic || isNextAuthRoute) {
+  if (isPublic || isNextAuthRoute || isInternalRoute) {
     const res = NextResponse.next()
     res.headers.set("Content-Security-Policy", CSP)
     return res
