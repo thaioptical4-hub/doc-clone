@@ -61,6 +61,10 @@ Import this repo into [Vercel](https://vercel.com) and set these environment var
 | `NEXTAUTH_URL` | Your Vercel URL (e.g. `https://doc-delivery.vercel.app`) |
 | `APP_USER` | Login username (e.g. `admin`) |
 | `APP_PASS` | Login password |
+| `GOOGLE_CLIENT_ID` | (optional) OAuth client ID for Drive backup |
+| `GOOGLE_CLIENT_SECRET` | (optional) OAuth client secret for Drive backup |
+| `GOOGLE_REFRESH_TOKEN` | (optional) OAuth refresh token for Drive backup |
+| `GOOGLE_DRIVE_FOLDER_ID` | (optional) Drive folder to upload into (defaults to My Drive root) |
 
 ### 4. Open on both iPads
 
@@ -74,6 +78,26 @@ cp .env.local.example .env.local
 # fill in POSTGRES_URL, APP_USER, APP_PASS, NEXTAUTH_SECRET
 npm run dev
 ```
+
+## Google Drive Backup
+
+When Tablet 2 confirms receipt, the app generates a one-page PDF of the full document (sender/recipient info, photos, signatures) and uploads it to a Google Drive account — no manual export needed. If Drive isn't configured, this step is silently skipped and confirmation still works normally.
+
+Files land directly in `thaioptical4@gmail.com`'s My Drive (or a specific folder, via `GOOGLE_DRIVE_FOLDER_ID`), because the integration uses that account's own OAuth credentials rather than a service account.
+
+### One-time setup
+
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project and enable the **Google Drive API**.
+2. Configure the OAuth consent screen (External; add `thaioptical4@gmail.com` as a test user).
+3. Create an **OAuth Client ID** of type **Desktop app**. Copy the client ID and secret.
+4. Run the helper script locally to get a refresh token:
+   ```bash
+   GOOGLE_CLIENT_ID=xxx GOOGLE_CLIENT_SECRET=yyy node scripts/get-google-refresh-token.mjs
+   ```
+5. Open the printed URL, sign in as `thaioptical4@gmail.com`, approve access.
+6. Copy the three printed values (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`) into `.env.local` (dev) and your Vercel project's environment variables (production).
+
+The integration only requests the `drive.file` scope — it can create/manage files it uploads, not read the rest of the Drive.
 
 ## Security
 
