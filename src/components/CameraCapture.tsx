@@ -54,7 +54,16 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
         accept="image/*"
         capture="environment"
         onChange={handleFileChange}
-        style={{ display: "none" }}
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          border: 0,
+        }}
       />
     </div>
   )

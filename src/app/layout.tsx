@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Doc Delivery",
   },
+  other: {
+    google: "notranslate",
+  },
 }
 
 export const viewport: Viewport = {
@@ -21,7 +24,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="th" className="notranslate">
       <body>{children}</body>
     </html>
   )
