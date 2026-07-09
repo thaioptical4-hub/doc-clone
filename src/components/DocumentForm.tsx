@@ -4,6 +4,9 @@ import { useState, useRef } from "react"
 import CameraCapture from "./CameraCapture"
 import SignaturePad from "./SignaturePad"
 
+const DOC_TYPE_OPTIONS = ["เอกสารภายใน", "จดหมาย", "พัสดุ", "อื่นๆ"]
+const OTHER_OPTION = "อื่นๆ"
+
 interface DocumentFormProps {
   onSuccess: () => void
 }
@@ -13,6 +16,8 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
   const [error, setError] = useState("")
   const [photo, setPhoto] = useState<string | null>(null)
   const [signature, setSignature] = useState<string | null>(null)
+  const [docType, setDocType] = useState(DOC_TYPE_OPTIONS[0])
+  const [customDocType, setCustomDocType] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -22,7 +27,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
 
     const form = new FormData(e.currentTarget as HTMLFormElement)
     const body: Record<string, unknown> = {
-      doc_type: form.get("doc_type"),
+      doc_type: docType === OTHER_OPTION ? customDocType : docType,
       sender_name: form.get("sender_name"),
       recipient_name: form.get("recipient_name"),
       description: form.get("description") || undefined,
@@ -41,6 +46,8 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
       formRef.current?.reset()
       setPhoto(null)
       setSignature(null)
+      setDocType(DOC_TYPE_OPTIONS[0])
+      setCustomDocType("")
       onSuccess()
     } else {
       setError("ส่งเอกสารไม่สำเร็จ กรุณาลองอีกครั้ง")
@@ -52,7 +59,23 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
     <form ref={formRef} onSubmit={handleSubmit} className="card">
       <div className="form-group">
         <label htmlFor="doc_type">ประเภทเอกสาร</label>
-        <input id="doc_type" name="doc_type" type="text" required placeholder="เช่น ใบแจ้งหนี้ สัญญา รายงาน..." />
+        <select id="doc_type" value={docType} onChange={(e) => setDocType(e.target.value)}>
+          {DOC_TYPE_OPTIONS.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        {docType === OTHER_OPTION && (
+          <input
+            type="text"
+            required
+            placeholder="ระบุประเภทเอกสาร"
+            value={customDocType}
+            onChange={(e) => setCustomDocType(e.target.value)}
+            style={{ marginTop: 8 }}
+          />
+        )}
       </div>
 
       <div className="form-group">
