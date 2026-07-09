@@ -64,7 +64,7 @@ Import this repo into [Vercel](https://vercel.com) and set these environment var
 | `GOOGLE_CLIENT_ID` | (optional) OAuth client ID for Drive/Sheets backup |
 | `GOOGLE_CLIENT_SECRET` | (optional) OAuth client secret for Drive/Sheets backup |
 | `GOOGLE_REFRESH_TOKEN` | (optional) OAuth refresh token for Drive/Sheets backup |
-| `GOOGLE_DRIVE_FOLDER_ID` | (optional) Drive folder to upload into (defaults to My Drive root) |
+| `GOOGLE_DRIVE_FOLDER_ID` | (optional) Drive folder to upload into — attachments are organized into date subfolders under this folder (defaults to My Drive root) |
 | `GOOGLE_SHEET_ID` | (optional) Spreadsheet ID for the document activity log |
 
 ### 4. Open on both iPads
@@ -82,7 +82,7 @@ npm run dev
 
 ## Google Drive/Sheets Backup
 
-**Send**: when Tablet 1 submits a document, a row is appended to a Google Sheet (doc type, sender, recipient, description, sent time, status). **Receive**: when Tablet 2 confirms receipt, that same row is updated (status, confirm time) and every photo/signature attached to the document (sender's and recipient's) is uploaded to Google Drive as a separate image file, with links added back into the row. If Drive/Sheets aren't configured, both steps are silently skipped and the app still works normally.
+**Send**: when Tablet 1 submits a document, a row is appended to a Google Sheet (doc type, sender, recipient, description, sent time, status). **Receive**: when Tablet 2 confirms receipt, that same row is updated (status, confirm time) and every photo/signature attached to the document (sender's — up to 5 — and recipient's) is uploaded to Google Drive as a separate image file, sorted into a subfolder named for that day (e.g. `2026-07-08`) under `GOOGLE_DRIVE_FOLDER_ID`, with links added back into the row. If Drive/Sheets aren't configured, both steps are silently skipped and the app still works normally.
 
 Everything lands in `thaioptical4@gmail.com`'s own Drive/Sheets (not a service account), because the integration uses that account's own OAuth credentials.
 
@@ -103,7 +103,7 @@ Everything lands in `thaioptical4@gmail.com`'s own Drive/Sheets (not a service a
 7. Copy the four printed/obtained values (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`, `GOOGLE_SHEET_ID`) into `.env.local` (dev) and your Vercel project's environment variables (production).
 8. Run the migration in `db/schema.sql` again against your Neon database — it adds the `sheet_row` column needed to match each document to its spreadsheet row (safe to re-run; existing tables/data are untouched).
 
-The integration only requests the `drive.file` scope — it can create/manage files and sheets it creates, not read the rest of the Drive.
+The integration requests the full `drive` scope (not the narrower `drive.file`), because it needs to write into a pre-existing folder the account owner picked (`GOOGLE_DRIVE_FOLDER_ID`), not just files it created itself.
 
 ## Security
 

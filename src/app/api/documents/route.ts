@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       sender_name: body.sender_name,
       recipient_name: body.recipient_name,
       description: body.description,
-      photo_sender: body.photo_sender,
+      photos_sender: Array.isArray(body.photos_sender) ? body.photos_sender.slice(0, 5) : undefined,
       signature_sender: body.signature_sender,
     })
 

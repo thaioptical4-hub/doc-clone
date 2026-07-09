@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDocument, confirmDocument, deleteDocument } from "@/lib/db"
-import { parseImageDataUrl, uploadFileToDrive } from "@/lib/googleDrive"
+import { parseImageDataUrl, uploadFileToDrive, getOrCreateDateFolder } from "@/lib/googleDrive"
 import { updateDocumentRow } from "@/lib/googleSheets"
 import type { AttachmentKind } from "@/lib/types"
 
@@ -41,17 +41,34 @@ export async function PATCH(
 
     try {
       const docLabel = doc.doc_type.replace(/\s+/g, "-")
-      const links: Partial<Record<"senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature", string>> = {}
+      const dateLabel = new Date(doc.created_at).toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
+      const rootFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID
+      const dateFolderId = rootFolderId ? await getOrCreateDateFolder(rootFolderId, dateLabel) : undefined
+
+      const linkGroups: Record<"senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature", string[]> = {
+        senderPhoto: [],
+        senderSignature: [],
+        recipientPhoto: [],
+        recipientSignature: [],
+      }
 
       for (const attachment of doc.attachments) {
         const { buffer, mimeType, extension } = parseImageDataUrl(attachment.data)
-        const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}.${extension}`
-        const uploaded = await uploadFileToDrive(buffer, filename, mimeType)
-        if (uploaded) links[LINK_FIELD[attachment.kind]] = uploaded.webViewLink
+        const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}-${attachment.id}.${extension}`
+        const uploaded = await uploadFileToDrive(buffer, filename, mimeType, dateFolderId || undefined)
+        if (uploaded) linkGroups[LINK_FIELD[attachment.kind]].push(uploaded.webViewLink)
       }
 
       if (doc.sheet_row) {
-        await updateDocumentRow(doc.sheet_row, { updated_at: doc.updated_at, links })
+        await updateDocumentRow(doc.sheet_row, {
+          updated_at: doc.updated_at,
+          links: {
+            senderPhoto: linkGroups.senderPhoto.join("\n"),
+            senderSignature: linkGroups.senderSignature.join("\n"),
+            recipientPhoto: linkGroups.recipientPhoto.join("\n"),
+            recipientSignature: linkGroups.recipientSignature.join("\n"),
+          },
+        })
       }
     } catch (driveError) {
       console.error("Google Drive/Sheets backup failed for document", id, driveError)

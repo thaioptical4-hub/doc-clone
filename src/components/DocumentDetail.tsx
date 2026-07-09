@@ -32,7 +32,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
 
-  const senderPhoto = document.attachments.find((a) => a.kind === "photo_sender")
+  const senderPhotos = document.attachments.filter((a) => a.kind === "photo_sender")
   const senderSig = document.attachments.find((a) => a.kind === "signature_sender")
   const recipientPhoto = document.attachments.find((a) => a.kind === "photo_recipient")
   const recipientSig = document.attachments.find((a) => a.kind === "signature_recipient")
@@ -171,13 +171,17 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           </div>
         </div>
 
-        {(senderPhoto || senderSig) && (
+        {(senderPhotos.length > 0 || senderSig) && (
           <div className="form-row">
-            {senderPhoto && (
+            {senderPhotos.length > 0 && (
               <div className="form-group">
-                <label>รูปผู้ส่ง</label>
-                <div className="camera-area">
-                  <img src={senderPhoto.data} alt="Sender" />
+                <label>รูปผู้ส่ง ({senderPhotos.length})</label>
+                <div className="photo-grid">
+                  {senderPhotos.map((photo) => (
+                    <div key={photo.id} className="photo-grid-item">
+                      <img src={photo.data} alt="Sender" />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

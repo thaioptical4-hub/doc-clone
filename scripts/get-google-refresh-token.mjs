@@ -28,7 +28,7 @@ server.listen(0, "127.0.0.1", () => {
   const authUrl = client.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
-    scope: ["https://www.googleapis.com/auth/drive.file"],
+    scope: ["https://www.googleapis.com/auth/drive"],
   })
 
   console.log("\nOpen this URL and sign in as thaioptical4@gmail.com:\n")

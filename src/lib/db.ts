@@ -8,7 +8,7 @@ export async function createDocument(params: {
   sender_name: string
   recipient_name: string
   description?: string
-  photo_sender?: string
+  photos_sender?: string[]
   signature_sender?: string
 }): Promise<Document> {
   const rows = await sql`
@@ -18,8 +18,8 @@ export async function createDocument(params: {
   `
   const doc = rows[0] as Document
 
-  if (params.photo_sender) {
-    await addAttachment(doc.id, "photo_sender", params.photo_sender)
+  for (const photo of params.photos_sender || []) {
+    await addAttachment(doc.id, "photo_sender", photo)
   }
   if (params.signature_sender) {
     await addAttachment(doc.id, "signature_sender", params.signature_sender)

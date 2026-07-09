@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import CameraCapture from "./CameraCapture"
+import MultiCameraCapture from "./MultiCameraCapture"
 import SignaturePad from "./SignaturePad"
 
 const DOC_TYPE_OPTIONS = ["เอกสารภายใน", "จดหมาย", "พัสดุ", "อื่นๆ"]
@@ -14,7 +14,7 @@ interface DocumentFormProps {
 export default function DocumentForm({ onSuccess }: DocumentFormProps) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [photo, setPhoto] = useState<string | null>(null)
+  const [photos, setPhotos] = useState<string[]>([])
   const [signature, setSignature] = useState<string | null>(null)
   const [docType, setDocType] = useState(DOC_TYPE_OPTIONS[0])
   const [customDocType, setCustomDocType] = useState("")
@@ -33,7 +33,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
       description: form.get("description") || undefined,
     }
 
-    if (photo) body.photo_sender = photo
+    if (photos.length > 0) body.photos_sender = photos
     if (signature) body.signature_sender = signature
 
     const res = await fetch("/api/documents", {
@@ -44,7 +44,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
 
     if (res.ok) {
       formRef.current?.reset()
-      setPhoto(null)
+      setPhotos([])
       setSignature(null)
       setDocType(DOC_TYPE_OPTIONS[0])
       setCustomDocType("")
@@ -97,8 +97,8 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
 
       <div className="form-row">
         <div className="form-group">
-          <label>รูปภาพ (ไม่บังคับ)</label>
-          <CameraCapture value={photo} onChange={setPhoto} />
+          <label>รูปภาพ (ไม่บังคับ, สูงสุด 5 รูป)</label>
+          <MultiCameraCapture value={photos} onChange={setPhotos} />
         </div>
 
         <div className="form-group">
