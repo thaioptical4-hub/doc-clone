@@ -1,0 +1,21 @@
+<svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CRAFT">
+  <defs>
+    <clipPath id="craft-top">
+      <polygon points="0,0 1000,0 1000,115 588,115 588,190 392,190 392,150 196,150 196,185 0,185" />
+    </clipPath>
+    <clipPath id="craft-bottom">
+      <polygon points="0,185 196,185 196,150 392,150 392,190 588,190 588,115 1000,115 1000,340 0,340" />
+    </clipPath>
+  </defs>
+
+  <g font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif" font-weight="900" font-size="320">
+    <g clip-path="url(#craft-top)">
+      <text x="10" y="270" textLength="980" lengthAdjust="spacingAndGlyphs">
+        <tspan fill="#8482C6">C</tspan><tspan fill="#1C84C6">R</tspan><tspan fill="#17AC82">A</tspan><tspan fill="#F5B78E">F</tspan><tspan fill="#EA6D84">T</tspan>
+      </text>
+    </g>
+    <g clip-path="url(#craft-bottom)">
+      <text x="10" y="270" textLength="980" lengthAdjust="spacingAndGlyphs" fill="#1E2A54">CRAFT</text>
+    </g>
+  </g>
+</svg>

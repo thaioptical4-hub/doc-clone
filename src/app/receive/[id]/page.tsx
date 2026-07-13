@@ -44,7 +44,7 @@ export default function ReceiveDetailPage() {
 
   return (
     <div style={{ marginTop: 24 }}>
-      <button className="back-button" onClick={() => router.push("/?tab=receive")} style={{ background: "none", color: "#007aff", padding: "8px 0", marginBottom: 16 }}>
+      <button className="back-button" onClick={() => router.push("/?tab=receive")} style={{ background: "none", color: "#1e2a54", padding: "8px 0", marginBottom: 16 }}>
         &larr; กลับ
       </button>
       <DocumentDetail
