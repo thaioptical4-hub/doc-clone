@@ -16,6 +16,7 @@ function HomeContent() {
       <div className="app-header">
         <img src="/logo.svg" alt="CRAFT" />
       </div>
+      <div className="brand-stripe" />
       <TabBar active={tab} onChange={setTab} />
       <div className="container">
         {tab === "send" ? <SendPage /> : <ReceivePage />}

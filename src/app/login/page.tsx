@@ -23,6 +23,7 @@ function LoginForm() {
     <div className="login-page">
       <div className="card login-card">
         <img src="/logo.svg" alt="CRAFT" className="login-logo" />
+        <div className="brand-stripe" style={{ borderRadius: 4, marginBottom: 20 }} />
         <h1 style={{ textAlign: "center", marginBottom: 24 }}>ระบบส่งเอกสาร</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">

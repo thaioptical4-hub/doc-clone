@@ -11,9 +11,15 @@ html {
 }
 
 body {
-  background: #f7f7fa;
+  background: linear-gradient(135deg, #f3f2fb 0%, #eef6fb 25%, #eaf8f3 50%, #fdf3ea 75%, #fdeef1 100%);
+  background-attachment: fixed;
   color: #1a1a1a;
   min-height: 100dvh;
+}
+
+.brand-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, #8482c6, #1c84c6, #17ac82, #f5b78e, #ea6d84);
 }
 
 input, select, textarea, button {
@@ -123,19 +129,22 @@ button:active {
 }
 
 .btn-success {
-  background: #34c759;
+  background: #17ac82;
   color: #fff;
   width: 100%;
   padding: 14px;
 }
 
-.tab-bar {
-  display: flex;
-  background: #fff;
-  border-bottom: 1px solid #e7e7ee;
+.tab-bar-wrap {
   position: sticky;
   top: 0;
   z-index: 10;
+  background: #fff;
+}
+
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid #e7e7ee;
 }
 
 .tab-bar button {
@@ -215,7 +224,7 @@ button:active {
 .camera-area {
   width: 100%;
   aspect-ratio: 4/3;
-  background: #eef0f6;
+  background: #fdf0e2;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -242,7 +251,7 @@ button:active {
   aspect-ratio: 4/3;
   border-radius: 8px;
   overflow: hidden;
-  background: #eef0f6;
+  background: #fdf0e2;
 }
 
 .photo-grid-item img {
@@ -388,7 +397,7 @@ button:active {
     background: #16203f;
   }
   .btn-success:hover {
-    background: #2ba149;
+    background: #128f6c;
   }
   .btn-danger:hover {
     background: #e0352b;

@@ -45,7 +45,7 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
           </button>
         </div>
       ) : (
-        <button type="button" onClick={handleCapture} style={{ background: "#e7f0fb", color: "#33455c", width: "100%", padding: "40px" }}>
+        <button type="button" onClick={handleCapture} style={{ background: "#fdf0e2", color: "#7a4a1e", width: "100%", padding: "40px" }}>
           ถ่ายรูป
         </button>
       )}

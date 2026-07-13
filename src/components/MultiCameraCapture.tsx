@@ -51,7 +51,7 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
       )}
 
       {value.length < MAX_PHOTOS && (
-        <button type="button" onClick={handleCapture} style={{ background: "#e7f0fb", color: "#33455c", width: "100%", padding: value.length > 0 ? 16 : 40 }}>
+        <button type="button" onClick={handleCapture} style={{ background: "#fdf0e2", color: "#7a4a1e", width: "100%", padding: value.length > 0 ? 16 : 40 }}>
           ถ่ายรูป ({value.length}/{MAX_PHOTOS})
         </button>
       )}

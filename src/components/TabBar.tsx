@@ -5,13 +5,15 @@ interface TabBarProps {
 
 export default function TabBar({ active, onChange }: TabBarProps) {
   return (
-    <div className="tab-bar">
-      <button className={active === "send" ? "active" : ""} onClick={() => onChange("send")}>
-        ส่ง
-      </button>
-      <button className={active === "receive" ? "active" : ""} onClick={() => onChange("receive")}>
-        รับ
-      </button>
+    <div className="tab-bar-wrap">
+      <div className="tab-bar">
+        <button className={active === "send" ? "active" : ""} onClick={() => onChange("send")}>
+          ส่ง
+        </button>
+        <button className={active === "receive" ? "active" : ""} onClick={() => onChange("receive")}>
+          รับ
+        </button>
+      </div>
     </div>
   )
 }
