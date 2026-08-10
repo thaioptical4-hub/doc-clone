@@ -20,7 +20,6 @@ const hiddenInputStyle = {
 }
 
 export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
-  const cameraInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -33,35 +32,24 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
     reader.readAsDataURL(file)
   }
 
-  function handleClear() {
-    onChange(null)
-  }
-
   return (
     <div>
       {value ? (
         <div>
           <div className="camera-area">
-            <img src={value} alt="เธฃเธนเธเธ เธฒเธเธ—เธตเนเนเธเธ" />
+            <img src={value} alt="รูปภาพที่แนบ" />
           </div>
-          <button type="button" onClick={handleClear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-            เธฅเธเธฃเธนเธเธ เธฒเธ
+          <button type="button" onClick={() => onChange(null)} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
+            ลบรูปภาพ
           </button>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-          <button type="button" onClick={() => cameraInputRef.current?.click()} style={{ background: "#fdf0e2", color: "#7a4a1e", padding: "24px 12px" }}>
-            เธ–เนเธฒเธขเธฃเธนเธ
-          </button>
-          <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: "#eef2ff", color: "#243b78", padding: "24px 12px" }}>
-            เน€เธฅเธทเธญเธเธฃเธนเธเธเธฒเธเน€เธเธฃเธทเนเธญเธ
-          </button>
-        </div>
+        <button type="button" onClick={() => fileInputRef.current?.click()} style={{ width: "100%", background: "#fdf0e2", color: "#7a4a1e", padding: "24px 12px" }}>
+          ถ่ายรูปหรือแนบรูป
+        </button>
       )}
 
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={hiddenInputStyle} />
       <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={hiddenInputStyle} />
     </div>
   )
 }
-
