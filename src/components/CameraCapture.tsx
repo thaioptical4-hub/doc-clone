@@ -8,28 +8,32 @@ interface CameraCaptureProps {
   onChange: (dataUrl: string | null) => void
 }
 
-export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+const hiddenInputStyle = {
+  position: "absolute" as const,
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0,0,0,0)",
+  border: 0,
+}
 
-  function handleCapture() {
-    inputRef.current?.click()
-  }
+export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
+    e.target.value = ""
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = () => {
-      compressImage(reader.result as string, (compressed) => {
-        onChange(compressed)
-      })
-    }
+    reader.onload = () => compressImage(reader.result as string, onChange)
     reader.readAsDataURL(file)
   }
 
   function handleClear() {
-    if (inputRef.current) inputRef.current.value = ""
     onChange(null)
   }
 
@@ -38,34 +42,26 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
       {value ? (
         <div>
           <div className="camera-area">
-            <img src={value} alt="Captured" />
+            <img src={value} alt="เธฃเธนเธเธ เธฒเธเธ—เธตเนเนเธเธ" />
           </div>
           <button type="button" onClick={handleClear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-            ลบรูปภาพ
+            เธฅเธเธฃเธนเธเธ เธฒเธ
           </button>
         </div>
       ) : (
-        <button type="button" onClick={handleCapture} style={{ background: "#fdf0e2", color: "#7a4a1e", width: "100%", padding: "40px" }}>
-          ถ่ายรูป
-        </button>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+          <button type="button" onClick={() => cameraInputRef.current?.click()} style={{ background: "#fdf0e2", color: "#7a4a1e", padding: "24px 12px" }}>
+            เธ–เนเธฒเธขเธฃเธนเธ
+          </button>
+          <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: "#eef2ff", color: "#243b78", padding: "24px 12px" }}>
+            เน€เธฅเธทเธญเธเธฃเธนเธเธเธฒเธเน€เธเธฃเธทเนเธญเธ
+          </button>
+        </div>
       )}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          padding: 0,
-          margin: -1,
-          overflow: "hidden",
-          clip: "rect(0,0,0,0)",
-          border: 0,
-        }}
-      />
+
+      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={hiddenInputStyle} />
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={hiddenInputStyle} />
     </div>
   )
 }
+
