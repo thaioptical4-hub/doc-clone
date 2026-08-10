@@ -36,23 +36,40 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
     if (photos.length > 0) body.photos_sender = photos
     if (signature) body.signature_sender = signature
 
-    const res = await fetch("/api/documents", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    })
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 30_000)
 
-    if (res.ok) {
+    try {
+      const res = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+
+      if (!res.ok) {
+        const responseBody = await res.json().catch(() => null)
+        throw new Error(responseBody?.error || "ส่งเอกสารไม่สำเร็จ กรุณาลองอีกครั้ง")
+      }
+
       formRef.current?.reset()
       setPhotos([])
       setSignature(null)
       setDocType(DOC_TYPE_OPTIONS[0])
       setCustomDocType("")
       onSuccess()
-    } else {
-      setError("ส่งเอกสารไม่สำเร็จ กรุณาลองอีกครั้ง")
+    } catch (submitError) {
+      if (submitError instanceof DOMException && submitError.name === "AbortError") {
+        setError("ใช้เวลาบันทึกนานเกินไป กรุณาตรวจสอบอินเทอร์เน็ตและดูรายการในแท็บรับก่อนลองใหม่")
+      } else if (submitError instanceof TypeError) {
+        setError("เชื่อมต่อระบบไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง")
+      } else {
+        setError(submitError instanceof Error ? submitError.message : "ส่งเอกสารไม่สำเร็จ กรุณาลองอีกครั้ง")
+      }
+    } finally {
+      window.clearTimeout(timeout)
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   return (

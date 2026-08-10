@@ -1,5 +1,11 @@
 import { getGoogleAccessToken } from "./googleAuth"
 
+function getAppsScriptConfig() {
+  const url = process.env.GOOGLE_APPS_SCRIPT_URL
+  const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET
+  return url && secret ? { url, secret } : null
+}
+
 /** Splits a `data:image/...;base64,...` URL into its raw bytes, mime type, and file extension. */
 export function parseImageDataUrl(dataUrl: string): { buffer: Buffer; mimeType: string; extension: string } {
   const match = /^data:(image\/(png|jpe?g|webp));base64,(.+)$/i.exec(dataUrl)
@@ -14,6 +20,9 @@ export function parseImageDataUrl(dataUrl: string): { buffer: Buffer; mimeType: 
  * organized by date. Returns null if Drive isn't configured.
  */
 export async function getOrCreateDateFolder(parentFolderId: string, dateLabel: string): Promise<string | null> {
+  // Apps Script creates the folder as the Drive owner when the first file is uploaded.
+  if (getAppsScriptConfig()) return `apps-script:${dateLabel}`
+
   const token = await getGoogleAccessToken()
   if (!token) return null
 
@@ -47,6 +56,33 @@ export async function uploadFileToDrive(
   mimeType: string,
   folderId?: string
 ): Promise<{ id: string; webViewLink: string } | null> {
+  const appsScript = getAppsScriptConfig()
+  if (appsScript) {
+    const dateLabel = folderId?.startsWith("apps-script:")
+      ? folderId.slice("apps-script:".length)
+      : new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
+    const res = await fetch(appsScript.url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        secret: appsScript.secret,
+        parentFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID,
+        dateLabel,
+        filename,
+        mimeType,
+        base64: buffer.toString("base64"),
+      }),
+      redirect: "follow",
+    })
+    const text = await res.text()
+    if (!res.ok) throw new Error(`Apps Script upload failed (${res.status}): ${text}`)
+    const result = JSON.parse(text) as { ok?: boolean; id?: string; webViewLink?: string; error?: string }
+    if (!result.ok || !result.id || !result.webViewLink) {
+      throw new Error(`Apps Script upload failed: ${result.error || "invalid response"}`)
+    }
+    return { id: result.id, webViewLink: result.webViewLink }
+  }
+
   const token = await getGoogleAccessToken()
   if (!token) return null
 
@@ -91,3 +127,4 @@ export async function uploadFileToDrive(
 
   return (await res.json()) as { id: string; webViewLink: string }
 }
+

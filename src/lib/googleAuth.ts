@@ -1,10 +1,34 @@
-import { OAuth2Client } from "google-auth-library"
+import { JWT, OAuth2Client } from "google-auth-library"
 
-let client: OAuth2Client | null = null
+type GoogleClient = JWT | OAuth2Client
 
-/** Returns the shared Google OAuth client, or null if the Drive/Sheets integration isn't configured. */
-export function getGoogleClient(): OAuth2Client | null {
+let client: GoogleClient | null = null
+
+const GOOGLE_SCOPES = [
+  "https://www.googleapis.com/auth/drive",
+  "https://www.googleapis.com/auth/spreadsheets",
+]
+
+/**
+ * Returns a shared Google client. Service-account credentials are preferred because
+ * they do not depend on a user's revocable/expiring OAuth refresh token. OAuth is
+ * retained as a backwards-compatible fallback while existing deployments migrate.
+ */
+export function getGoogleClient(): GoogleClient | null {
   if (client) return client
+
+  const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+  const serviceAccountPrivateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n")
+
+  if (serviceAccountEmail && serviceAccountPrivateKey) {
+    client = new JWT({
+      email: serviceAccountEmail,
+      key: serviceAccountPrivateKey,
+      scopes: GOOGLE_SCOPES,
+    })
+    return client
+  }
+
   const clientId = process.env.GOOGLE_CLIENT_ID
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET
   const refreshToken = process.env.GOOGLE_REFRESH_TOKEN
@@ -15,8 +39,9 @@ export function getGoogleClient(): OAuth2Client | null {
 }
 
 export async function getGoogleAccessToken(): Promise<string | null> {
-  const oauth2Client = getGoogleClient()
-  if (!oauth2Client) return null
-  const { token } = await oauth2Client.getAccessToken()
+  const googleClient = getGoogleClient()
+  if (!googleClient) return null
+  const { token } = await googleClient.getAccessToken()
   return token ?? null
 }
+

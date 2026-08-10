@@ -11,6 +11,12 @@ export async function createDocument(params: {
   photos_sender?: string[]
   signature_sender?: string
 }): Promise<Document> {
+  // Validate every attachment before creating the document. Previously, an invalid
+  // or oversized later image left a document row behind even though the API returned
+  // an error, which made retries create duplicates.
+  for (const photo of params.photos_sender || []) validateAttachment(photo)
+  if (params.signature_sender) validateAttachment(params.signature_sender)
+
   const rows = await sql`
     INSERT INTO documents (doc_type, sender_name, recipient_name, description, status)
     VALUES (${params.doc_type}, ${params.sender_name}, ${params.recipient_name}, ${params.description || null}, 'sent')
@@ -61,6 +67,14 @@ export async function setSheetRow(id: number, row: number) {
 }
 
 async function addAttachment(documentId: number, kind: AttachmentKind, data: string) {
+  validateAttachment(data)
+  await sql`
+    INSERT INTO attachments (document_id, kind, data)
+    VALUES (${documentId}, ${kind}, ${data})
+  `
+}
+
+function validateAttachment(data: string) {
   if (!data.startsWith("data:image/")) {
     throw new Error("Invalid attachment format")
   }
@@ -68,10 +82,6 @@ async function addAttachment(documentId: number, kind: AttachmentKind, data: str
   if (rawSize > 5 * 1024 * 1024) {
     throw new Error("Attachment too large")
   }
-  await sql`
-    INSERT INTO attachments (document_id, kind, data)
-    VALUES (${documentId}, ${kind}, ${data})
-  `
 }
 
 export async function deleteDocument(id: number) {
