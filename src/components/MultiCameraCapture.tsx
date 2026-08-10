@@ -24,14 +24,13 @@ const hiddenInputStyle = {
 function readAndCompress(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onerror = () => reject(new Error("เนเธกเนเธชเธฒเธกเธฒเธฃเธ–เธญเนเธฒเธเนเธเธฅเนเธฃเธนเธเธ เธฒเธเนเธ”เน"))
+    reader.onerror = () => reject(new Error("ไม่สามารถอ่านไฟล์รูปภาพได้"))
     reader.onload = () => compressImage(reader.result as string, resolve)
     reader.readAsDataURL(file)
   })
 }
 
 export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptureProps) {
-  const cameraInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -54,8 +53,8 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
         <div className="photo-grid">
           {value.map((photo, i) => (
             <div key={`${photo.slice(-24)}-${i}`} className="photo-grid-item">
-              <img src={photo} alt={`เธฃเธนเธเธ—เธตเน ${i + 1}`} />
-              <button type="button" onClick={() => handleRemove(i)} className="photo-grid-remove" title="เธฅเธเธฃเธนเธเธเธตเน" aria-label={`เธฅเธเธฃเธนเธเธ—เธตเน ${i + 1}`}>
+              <img src={photo} alt={`รูปที่ ${i + 1}`} />
+              <button type="button" onClick={() => handleRemove(i)} className="photo-grid-remove" title="ลบรูปนี้" aria-label={`ลบรูปที่ ${i + 1}`}>
                 &times;
               </button>
             </div>
@@ -64,19 +63,12 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
       )}
 
       {value.length < MAX_PHOTOS && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-          <button type="button" onClick={() => cameraInputRef.current?.click()} style={{ background: "#fdf0e2", color: "#7a4a1e", padding: value.length > 0 ? 16 : 24 }}>
-            เธ–เนเธฒเธขเธฃเธนเธ ({value.length}/{MAX_PHOTOS})
-          </button>
-          <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: "#eef2ff", color: "#243b78", padding: value.length > 0 ? 16 : 24 }}>
-            เน€เธฅเธทเธญเธเธฃเธนเธเธเธฒเธเน€เธเธฃเธทเนเธญเธ
-          </button>
-        </div>
+        <button type="button" onClick={() => fileInputRef.current?.click()} style={{ width: "100%", background: "#fdf0e2", color: "#7a4a1e", padding: value.length > 0 ? 16 : 24 }}>
+          ถ่ายรูปหรือแนบรูป ({value.length}/{MAX_PHOTOS})
+        </button>
       )}
 
-      <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={hiddenInputStyle} />
       <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileChange} style={hiddenInputStyle} />
     </div>
   )
 }
-
