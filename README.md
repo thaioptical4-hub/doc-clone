@@ -8,9 +8,9 @@ Two iPads: **Tablet 1** sends documents with sender details, optional photo, and
 
 - **New look** — TOG Corporate Service colours (navy / corporate blue) and the IBM Plex Sans Thai font, with one top menu: ส่งเอกสาร · รับเอกสาร · ประวัติ · แดชบอร์ด.
 - **Departments** — the send form now asks for the sender's and recipient's department (dropdown). Edit the list in `src/lib/departments.ts`. Older documents show as "ไม่ระบุ".
-- **Proof is required** — at least one photo before sending; a photo after delivery **and** the recipient's signature before a receipt can be confirmed (enforced in the API too). The sender signature was removed from the send form; old ones still display.
+- **Proof is required** — at least one photo before sending; a photo after delivery **and** the recipient's signature before a receipt can be confirmed (enforced in the API too). The sender signature stays optional, as before.
 - **Executive dashboard** (`/dashboard`) — today / last 7 days / this month: totals vs. the previous period, received %, average time to receive, documents per sender department, hourly/daily volume, the most-used routes, and everything still waiting (overdue after 60 minutes, see `OVERDUE_MINUTES` in `src/lib/stats.ts`). Auto-refreshes every 30 s.
-- **History** (`/history`) — filter by date range, department, status or text; thumbnails of the before photo, after photo and signature with a full-size viewer; download as **Excel with the images embedded** (plus a per-department summary sheet) or a **ZIP of all photos** named by document number. Files are built in the browser, so large ranges don't hit server limits.
+- **History** (`/history`) — filter by date range, department, status or text; thumbnails of the before photo, sender signature, after photo and recipient signature with a full-size viewer; download as **Excel with the images embedded** (plus a per-department summary sheet) or a **ZIP of all photos** named by document number. Files are built in the browser, so large ranges don't hit server limits.
 - **Google Sheet** — two new columns at the end: M หน่วยงานผู้ส่ง, N หน่วยงานผู้รับ (add the headers to an existing sheet by hand).
 
 ### Database migration

@@ -87,12 +87,13 @@ const COLS = [
   { header: "หน่วยงานผู้รับ", width: 18 },
   { header: "ผู้รับ", width: 16 },
   { header: "รูปก่อนส่ง", width: 22 },
+  { header: "ลายเซ็นผู้ส่ง", width: 22 },
   { header: "เวลารับ", width: 10 },
   { header: "รูปหลังส่ง", width: 22 },
   { header: "ลายเซ็นผู้รับ", width: 22 },
   { header: "สถานะ", width: 12 },
 ]
-const IMG_COL = { before: 9, after: 11, signature: 12 } // 1-based
+const IMG_COL = { before: 9, senderSignature: 10, after: 12, signature: 13 } // 1-based
 const ROW_H_PT = 84
 const HEADER_ROW = 4
 
@@ -139,6 +140,7 @@ export async function exportExcel(rows: HistoryRow[], rangeLabel: string, onProg
     const rowNum = HEADER_ROW + 1 + i
     const p = photosOf(r)
     if (p.before[0]) jobs.push({ id: p.before[0].id, row: rowNum, col: IMG_COL.before, png: false })
+    if (p.senderSignature[0]) jobs.push({ id: p.senderSignature[0].id, row: rowNum, col: IMG_COL.senderSignature, png: true })
     if (p.after[0]) jobs.push({ id: p.after[0].id, row: rowNum, col: IMG_COL.after, png: false })
     if (p.signature[0]) jobs.push({ id: p.signature[0].id, row: rowNum, col: IMG_COL.signature, png: true })
   })
@@ -157,6 +159,7 @@ export async function exportExcel(rows: HistoryRow[], rangeLabel: string, onProg
       departmentLabel(r.recipient_department),
       r.recipient_name,
       p.before.length ? "" : "—",
+      p.senderSignature.length ? "" : "—",
       confirmed ? thaiTime(r.updated_at) : "—",
       p.after.length ? "" : "—",
       p.signature.length ? "" : "—",
@@ -168,11 +171,11 @@ export async function exportExcel(rows: HistoryRow[], rangeLabel: string, onProg
       cell.value = v
       cell.font = font
       cell.border = border
-      const centered = [2, 9, 10, 11, 12, 13].includes(c + 1)
+      const centered = [2, 9, 10, 11, 12, 13, 14].includes(c + 1)
       cell.alignment = { vertical: "middle", horizontal: centered ? "center" : "left", wrapText: true }
     })
     row.getCell(1).font = { name: "Consolas", size: 10, bold: true, color: { argb: "FF10458E" } }
-    const st = row.getCell(13)
+    const st = row.getCell(14)
     st.font = { ...font, bold: true, color: { argb: confirmed ? "FF15803D" : "FFC2410C" } }
     st.fill = { type: "pattern", pattern: "solid", fgColor: { argb: confirmed ? "FFE8F5EC" : "FFFDF0E8" } }
     row.height = ROW_H_PT
@@ -217,7 +220,7 @@ export async function exportExcel(rows: HistoryRow[], rangeLabel: string, onProg
   })
   const last = HEADER_ROW + rows.length
   const fromRange = `'รายการส่งเอกสาร'!$E$${HEADER_ROW + 1}:$E$${Math.max(last, HEADER_ROW + 1)}`
-  const statusRange = `'รายการส่งเอกสาร'!$M$${HEADER_ROW + 1}:$M$${Math.max(last, HEADER_ROW + 1)}`
+  const statusRange = `'รายการส่งเอกสาร'!$N$${HEADER_ROW + 1}:$N$${Math.max(last, HEADER_ROW + 1)}`
   const depts = Array.from(new Set(rows.map((r) => departmentLabel(r.sender_department)))).sort((a, b) => a.localeCompare(b, "th"))
   depts.forEach((d, i) => {
     const r = 5 + i

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import MultiCameraCapture from "./MultiCameraCapture"
+import SignaturePad from "./SignaturePad"
 import { DEPARTMENTS } from "@/lib/departments"
 
 const DOC_TYPE_OPTIONS = ["เอกสารภายใน", "จดหมาย", "พัสดุ", "อื่นๆ"]
@@ -15,6 +16,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [photos, setPhotos] = useState<string[]>([])
+  const [signature, setSignature] = useState<string | null>(null)
   const [docType, setDocType] = useState(DOC_TYPE_OPTIONS[0])
   const [customDocType, setCustomDocType] = useState("")
   const [senderDept, setSenderDept] = useState("")
@@ -42,6 +44,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
       description: form.get("description") || undefined,
       photos_sender: photos,
     }
+    if (signature) body.signature_sender = signature
 
     const res = await fetch("/api/documents", {
       method: "POST",
@@ -52,6 +55,7 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
     if (res.ok) {
       formRef.current?.reset()
       setPhotos([])
+      setSignature(null)
       setDocType(DOC_TYPE_OPTIONS[0])
       setCustomDocType("")
       setSenderDept("")
@@ -126,10 +130,16 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
         </div>
       </div>
 
-      <div className="step-title"><span className="step-num">3</span> ถ่ายรูปเอกสารก่อนส่ง</div>
-      <div className="form-group">
-        <label>รูปก่อนส่ง (บังคับอย่างน้อย 1 รูป, สูงสุด 5 รูป)</label>
-        <MultiCameraCapture value={photos} onChange={setPhotos} />
+      <div className="step-title"><span className="step-num">3</span> รูปก่อนส่ง และลายเซ็นผู้ส่ง</div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>รูปก่อนส่ง (บังคับอย่างน้อย 1 รูป, สูงสุด 5 รูป)</label>
+          <MultiCameraCapture value={photos} onChange={setPhotos} />
+        </div>
+        <div className="form-group">
+          <label>ลายเซ็นผู้ส่ง (ไม่บังคับ)</label>
+          <SignaturePad value={signature} onChange={setSignature} />
+        </div>
       </div>
 
       {error && <p className="form-error" role="alert">{error}</p>}

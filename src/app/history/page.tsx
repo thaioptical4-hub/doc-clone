@@ -181,7 +181,7 @@ export default function HistoryPage() {
 
         <section className="card" style={{ padding: 0, overflow: "hidden" }}>
           <div className="table-scroll">
-            <table className="data-table" style={{ minWidth: 1100 }}>
+            <table className="data-table" style={{ minWidth: 1200 }}>
               <thead>
                 <tr>
                   <th scope="col">เลขที่</th>
@@ -189,6 +189,7 @@ export default function HistoryPage() {
                   <th scope="col">เอกสาร</th>
                   <th scope="col">จาก → ถึง</th>
                   <th scope="col">รูปก่อนส่ง</th>
+                  <th scope="col">ลายเซ็นผู้ส่ง</th>
                   <th scope="col">เวลารับ</th>
                   <th scope="col">รูปหลังส่ง</th>
                   <th scope="col">ลายเซ็นผู้รับ</th>
@@ -197,10 +198,10 @@ export default function HistoryPage() {
               </thead>
               <tbody>
                 {rows === null && (
-                  <tr><td colSpan={9} className="empty-note">กำลังโหลด...</td></tr>
+                  <tr><td colSpan={10} className="empty-note">กำลังโหลด...</td></tr>
                 )}
                 {rows?.length === 0 && (
-                  <tr><td colSpan={9} className="empty-note">ไม่พบเอกสารในช่วงนี้</td></tr>
+                  <tr><td colSpan={10} className="empty-note">ไม่พบเอกสารในช่วงนี้</td></tr>
                 )}
                 {pageRows.map((r) => {
                   const p = photosOf(r)
@@ -223,6 +224,13 @@ export default function HistoryPage() {
                             </button>
                             {p.before.length > 1 && <span className="thumb-more">+{p.before.length - 1}</span>}
                           </div>
+                        ) : <span className="muted">—</span>}
+                      </td>
+                      <td>
+                        {p.senderSignature[0] ? (
+                          <button type="button" className="thumb sig" aria-label={`ดูลายเซ็นผู้ส่ง ${docNo(r.id)}`} onClick={() => open(r, "ลายเซ็นผู้ส่ง", p.senderSignature[0], `${r.sender_name} · ${thaiDateTime(r.created_at)}`)}>
+                            <img src={attachmentUrl(p.senderSignature[0].id)} alt="" loading="lazy" />
+                          </button>
                         ) : <span className="muted">—</span>}
                       </td>
                       <td>{confirmed ? thaiTime(r.updated_at) : <span className="muted">—</span>}</td>
