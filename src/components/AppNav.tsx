@@ -1,8 +1,11 @@
+"use client"
+
 import Link from "next/link"
+import { signOut, useSession } from "next-auth/react"
 
 export type NavKey = "send" | "receive" | "history" | "dashboard"
 
-const ITEMS: { key: NavKey; href: string; label: string; icon: React.ReactNode }[] = [
+const ITEMS: { key: NavKey; href: string; label: string; adminOnly?: boolean; icon: React.ReactNode }[] = [
   {
     key: "send",
     href: "/?tab=send",
@@ -24,6 +27,7 @@ const ITEMS: { key: NavKey; href: string; label: string; icon: React.ReactNode }
     key: "history",
     href: "/history",
     label: "ประวัติ",
+    adminOnly: true,
     icon: (
       <>
         <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
@@ -35,11 +39,15 @@ const ITEMS: { key: NavKey; href: string; label: string; icon: React.ReactNode }
     key: "dashboard",
     href: "/dashboard",
     label: "แดชบอร์ด",
+    adminOnly: true,
     icon: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
   },
 ]
 
 export function AppNav({ active }: { active: NavKey }) {
+  const { data } = useSession()
+  const isAdmin = data?.role === "admin"
+  const items = ITEMS.filter((item) => !item.adminOnly || isAdmin)
   return (
     <header className="app-nav">
       <div className="app-nav-inner">
@@ -51,7 +59,7 @@ export function AppNav({ active }: { active: NavKey }) {
           </span>
         </Link>
         <nav aria-label="เมนูหลัก" className="app-nav-links">
-          {ITEMS.map((item) => (
+          {items.map((item) => (
             <Link
               key={item.key}
               href={item.href}
@@ -65,6 +73,14 @@ export function AppNav({ active }: { active: NavKey }) {
             </Link>
           ))}
         </nav>
+        {data && (
+          <div className="app-user">
+            <span className={isAdmin ? "badge badge-info" : "badge badge-confirmed"}>{isAdmin ? "ผู้ดูแลระบบ" : "พนักงาน"}</span>
+            <button type="button" className="btn-ghost" onClick={() => signOut({ callbackUrl: "/login" })}>
+              ออกจากระบบ
+            </button>
+          </div>
+        )}
       </div>
     </header>
   )

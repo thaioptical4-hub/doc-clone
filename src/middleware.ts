@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { isAdminOnly } from "@/lib/roles"
 
 const LOGIN_RATE_LIMIT = 5
 const RATE_WINDOW_MS = 60_000
@@ -69,6 +70,11 @@ export async function middleware(request: NextRequest) {
     if (isApiRoute)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     return NextResponse.redirect(new URL("/login", request.url))
+  }
+  if (session?.role !== "admin" && isAdminOnly(request.nextUrl.pathname, request.method)) {
+    if (isApiRoute)
+      return NextResponse.json({ error: "สำหรับผู้ดูแลระบบเท่านั้น" }, { status: 403 })
+    return NextResponse.redirect(new URL("/", request.url))
   }
   const res = NextResponse.next()
   res.headers.set("Content-Security-Policy", CSP)

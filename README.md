@@ -13,6 +13,19 @@ Two iPads: **Tablet 1** sends documents with sender details, optional photo, and
 - **History** (`/history`) — filter by date range, department, status or text; thumbnails of the before photo, sender signature, after photo and recipient signature with a full-size viewer; download as **Excel with the images embedded** (plus a per-department summary sheet) or a **ZIP of all photos** named by document number. Files are built in the browser, so large ranges don't hit server limits.
 - **Google Sheet** — two new columns at the end: M หน่วยงานผู้ส่ง, N หน่วยงานผู้รับ (add the headers to an existing sheet by hand).
 
+### Staff and admin logins
+
+Set `ADMIN_USER` and `ADMIN_PASS` to split access (`src/lib/roles.ts`):
+
+| | Staff (`APP_USER`, the iPads) | Admin (`ADMIN_USER`) |
+|---|---|---|
+| Send / receive | ✓ | ✓ |
+| History, dashboard, photo files | — | ✓ |
+| Delete documents | — | ✓ |
+| Lands on after login | Send screen | Dashboard |
+
+The middleware enforces this for pages and API calls; the menus just hide what staff can't use. Until both admin variables exist, the shared login keeps full access, so nothing changes on deploy. Roles are worked out on every request, so after adding the variables (and redeploying, which Vercel needs for env changes) the iPads become staff without logging in again.
+
 ### Database migration
 
 The two new nullable columns (`sender_department`, `recipient_department`) and an index on `created_at` are added automatically the first time the app touches the database (`ensureSchema` in `src/lib/db.ts`). You can also run the bottom of `db/schema.sql` yourself. Both are safe to re-run and don't change existing rows.
@@ -74,6 +87,8 @@ Import this repo into [Vercel](https://vercel.com) and set these environment var
 | `NEXTAUTH_URL` | Your Vercel URL (e.g. `https://doc-delivery.vercel.app`) |
 | `APP_USER` | Login username (e.g. `admin`) |
 | `APP_PASS` | Login password |
+| `ADMIN_USER` | (optional) Admin login username — sees history, dashboard, and can delete |
+| `ADMIN_PASS` | (optional) Admin login password |
 | `GOOGLE_CLIENT_ID` | (optional) OAuth client ID for Drive/Sheets backup |
 | `GOOGLE_CLIENT_SECRET` | (optional) OAuth client secret for Drive/Sheets backup |
 | `GOOGLE_REFRESH_TOKEN` | (optional) OAuth refresh token for Drive/Sheets backup |
