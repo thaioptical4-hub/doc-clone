@@ -2,6 +2,7 @@ import { useState, useRef, useMemo } from "react"
 import Link from "next/link"
 import { jsPDF } from "jspdf"
 import { departmentLabel } from "@/lib/departments"
+import { useIsAdmin } from "./Providers"
 import type { Document } from "@/lib/types"
 
 interface DocumentListProps {
@@ -50,6 +51,7 @@ function dateGroups(docs: Document[]): [string, Document[]][] {
 }
 
 export default function DocumentList({ documents, onRefresh }: DocumentListProps) {
+  const isAdmin = useIsAdmin()
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [deleting, setDeleting] = useState(false)
@@ -239,6 +241,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
         </div>
       )}
 
+      {isAdmin && (
       <div className="list-actions">
         <button
           className="btn-ghost"
@@ -255,6 +258,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
           {exporting ? "กำลังสร้าง PDF..." : "ส่งออก PDF ทั้งหมด"}
         </button>
       </div>
+      )}
 
       {selectMode && (
         <div className="selection-bar">
@@ -357,7 +361,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
                     </div>
                   </Link>
                 )}
-                {!selectMode && (
+                {isAdmin && !selectMode && (
                   <button
                     onClick={() => handleSingleDelete(doc.id)}
                     disabled={deleting}

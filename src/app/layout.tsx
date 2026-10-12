@@ -3,6 +3,7 @@ import "@fontsource/ibm-plex-sans-thai/400.css"
 import "@fontsource/ibm-plex-sans-thai/500.css"
 import "@fontsource/ibm-plex-sans-thai/600.css"
 import "./globals.css"
+import { Providers } from "@/components/Providers"
 
 export const metadata: Metadata = {
   title: "Doc Delivery",
@@ -28,7 +29,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th" className="notranslate">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

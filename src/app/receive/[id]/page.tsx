@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import DocumentDetail from "@/components/DocumentDetail"
 import { AppNav } from "@/components/AppNav"
+import { useIsAdmin } from "@/components/Providers"
 import type { DocumentWithAttachments } from "@/lib/types"
 
 export default function ReceiveDetailPage() {
@@ -11,6 +12,7 @@ export default function ReceiveDetailPage() {
   const router = useRouter()
   const [doc, setDoc] = useState<DocumentWithAttachments | null>(null)
   const [loading, setLoading] = useState(true)
+  const isAdmin = useIsAdmin()
 
   const fetchDoc = async () => {
     const res = await fetch(`/api/documents/${params.id}`)
@@ -56,7 +58,7 @@ export default function ReceiveDetailPage() {
       <DocumentDetail
         document={doc}
         onConfirm={handleConfirm}
-        onDelete={() => router.push("/?tab=receive")}
+        onDelete={isAdmin ? () => router.push("/?tab=receive") : undefined}
       />
     </div>
     </>
