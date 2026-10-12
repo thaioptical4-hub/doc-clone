@@ -2,14 +2,16 @@ import { NextResponse } from "next/server"
 import { createDocument, getDocuments, setSheetRow } from "@/lib/db"
 import { appendDocumentRow } from "@/lib/googleSheets"
 import { normalizeDepartment } from "@/lib/departments"
+import { activeDepartmentNames } from "@/lib/departmentStore"
 import type { DocStatus } from "@/lib/types"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const photos: string[] = Array.isArray(body.photos_sender) ? body.photos_sender.slice(0, 5) : []
-    const senderDepartment = normalizeDepartment(body.sender_department)
-    const recipientDepartment = normalizeDepartment(body.recipient_department)
+    const departmentNames = await activeDepartmentNames()
+    const senderDepartment = normalizeDepartment(body.sender_department, departmentNames)
+    const recipientDepartment = normalizeDepartment(body.recipient_department, departmentNames)
 
     if (!body.doc_type || !body.sender_name || !body.recipient_name) {
       return NextResponse.json({ error: "กรุณากรอกข้อมูลให้ครบ" }, { status: 400 })

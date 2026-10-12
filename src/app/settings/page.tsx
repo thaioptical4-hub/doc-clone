@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { signOut, useSession } from "next-auth/react"
 import { AppNav } from "@/components/AppNav"
+import { DepartmentManager } from "@/components/DepartmentManager"
 
 interface AdminInfo {
   managedByEnv: boolean
@@ -53,7 +54,7 @@ export default function SettingsPage() {
     <>
       <AppNav active="settings" />
       <main className="container">
-        <h1 className="page-title">ตั้งค่าผู้ดูแลระบบ</h1>
+        <h1 className="page-title">ตั้งค่า</h1>
         <p className="page-sub">
           บัญชี Admin เห็นประวัติ แดชบอร์ด และลบเอกสารได้ · บัญชีของ iPad จะเหลือแค่ส่งและรับเอกสาร
         </p>
@@ -116,6 +117,8 @@ export default function SettingsPage() {
             </button>
           </form>
         )}
+
+        {!savedAs && <DepartmentManager />}
       </main>
     </>
   )

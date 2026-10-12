@@ -69,6 +69,7 @@ export function isAdminOnly(pathname: string, method: string): boolean {
   if (pathname === "/settings" || pathname.startsWith("/settings/")) return true
   if (pathname.startsWith("/api/stats") || pathname.startsWith("/api/history") || pathname.startsWith("/api/attachments")) return true
   if (pathname.startsWith("/api/settings")) return true
+  if (pathname.startsWith("/api/departments") && method !== "GET") return true
   if (pathname.startsWith("/api/documents/batch-delete")) return true
   if (pathname.startsWith("/api/documents/") && method === "DELETE") return true
   return false

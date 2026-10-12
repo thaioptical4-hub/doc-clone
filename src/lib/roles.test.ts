@@ -78,6 +78,9 @@ describe("isAdminOnly", () => {
     }
     expect(isAdminOnly("/api/documents/batch-delete", "POST")).toBe(true)
     expect(isAdminOnly("/api/documents/5", "DELETE")).toBe(true)
+    expect(isAdminOnly("/api/departments", "POST")).toBe(true)
+    expect(isAdminOnly("/api/departments/3", "PATCH")).toBe(true)
+    expect(isAdminOnly("/api/departments/reorder", "POST")).toBe(true)
   })
 
   it("leaves sending and receiving open to staff", () => {
@@ -87,5 +90,6 @@ describe("isAdminOnly", () => {
     expect(isAdminOnly("/api/documents", "GET")).toBe(false)
     expect(isAdminOnly("/api/documents/5", "GET")).toBe(false)
     expect(isAdminOnly("/api/documents/5", "PATCH")).toBe(false)
+    expect(isAdminOnly("/api/departments", "GET")).toBe(false)
   })
 })

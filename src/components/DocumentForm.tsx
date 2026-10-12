@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import MultiCameraCapture from "./MultiCameraCapture"
 import SignaturePad from "./SignaturePad"
-import { DEPARTMENTS } from "@/lib/departments"
 
 const DOC_TYPE_OPTIONS = ["เอกสารภายใน", "จดหมาย", "พัสดุ", "อื่นๆ"]
 const OTHER_OPTION = "อื่นๆ"
@@ -22,6 +21,15 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
   const [senderDept, setSenderDept] = useState("")
   const [recipientDept, setRecipientDept] = useState("")
   const formRef = useRef<HTMLFormElement>(null)
+  const [departments, setDepartments] = useState<string[]>([])
+  const [deptError, setDeptError] = useState(false)
+
+  useEffect(() => {
+    fetch("/api/departments", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((list: { name: string }[]) => setDepartments(list.map((d) => d.name)))
+      .catch(() => setDeptError(true))
+  }, [])
 
   const missingPhoto = photos.length === 0
 
@@ -103,8 +111,8 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
         <div className="form-group">
           <label htmlFor="sender_department">หน่วยงานผู้ส่ง</label>
           <select id="sender_department" required value={senderDept} onChange={(e) => setSenderDept(e.target.value)}>
-            <option value="" disabled>เลือกหน่วยงาน</option>
-            {DEPARTMENTS.map((d) => (
+            <option value="" disabled>{departments.length ? "เลือกหน่วยงาน" : deptError ? "โหลดรายชื่อไม่สำเร็จ ลองรีเฟรช" : "กำลังโหลด..."}</option>
+            {departments.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
@@ -118,8 +126,8 @@ export default function DocumentForm({ onSuccess }: DocumentFormProps) {
         <div className="form-group">
           <label htmlFor="recipient_department">หน่วยงานผู้รับ</label>
           <select id="recipient_department" required value={recipientDept} onChange={(e) => setRecipientDept(e.target.value)}>
-            <option value="" disabled>เลือกหน่วยงาน</option>
-            {DEPARTMENTS.map((d) => (
+            <option value="" disabled>{departments.length ? "เลือกหน่วยงาน" : deptError ? "โหลดรายชื่อไม่สำเร็จ ลองรีเฟรช" : "กำลังโหลด..."}</option>
+            {departments.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
