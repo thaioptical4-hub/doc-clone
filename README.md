@@ -15,7 +15,7 @@ Two iPads: **Tablet 1** sends documents with sender details, optional photo, and
 
 ### Staff and admin logins
 
-Set `ADMIN_USER` and `ADMIN_PASS` to split access (`src/lib/roles.ts`):
+Create the admin account in the app: sign in with the shared login (it has full access while no admin exists), open **ตั้งค่า** (`/settings`) and save a username and password. The password is stored only as a salted PBKDF2 hash in an `app_settings` table (created on first save). Alternatively set `ADMIN_USER` and `ADMIN_PASS` in the environment; those take priority and lock the settings page. Rules live in `src/lib/roles.ts`:
 
 | | Staff (`APP_USER`, the iPads) | Admin (`ADMIN_USER`) |
 |---|---|---|
@@ -24,7 +24,7 @@ Set `ADMIN_USER` and `ADMIN_PASS` to split access (`src/lib/roles.ts`):
 | Delete documents | — | ✓ |
 | Lands on after login | Send screen | Dashboard |
 
-The middleware enforces this for pages and API calls; the menus just hide what staff can't use. Until both admin variables exist, the shared login keeps full access, so nothing changes on deploy. Roles are worked out on every request, so after adding the variables (and redeploying, which Vercel needs for env changes) the iPads become staff without logging in again.
+The middleware enforces this for pages and API calls; the menus just hide what staff can't use. Until an admin exists, the shared login keeps full access. Roles are worked out on every request (the saved admin is cached for 30 s), so once an admin is created the iPads become staff without logging in again.
 
 ### Database migration
 
