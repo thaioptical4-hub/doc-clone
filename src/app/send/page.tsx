@@ -13,9 +13,12 @@ export default function SendPage() {
 
   if (submitted) {
     return (
-      <div className="card" style={{ textAlign: "center", marginTop: 24 }}>
+      <div className="card success-card" style={{ marginTop: 24 }}>
+        <div className="success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+        </div>
         <h2>ส่งเอกสารแล้ว</h2>
-        <p style={{ color: "#34c759", marginTop: 8 }}>ผู้รับสามารถยืนยันการรับได้ที่แท็บรับเอกสาร</p>
+        <p className="muted" style={{ marginTop: 8 }}>ผู้รับยืนยันการรับได้ที่เมนู "รับเอกสาร"</p>
         <button className="btn-primary" style={{ marginTop: 16 }} onClick={() => setSubmitted(false)}>
           ส่งอีกฉบับ
         </button>

@@ -12,10 +12,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-sans-thai": "^5.3.0",
     "@neondatabase/serverless": "^1.1.0",
+    "exceljs": "^4.4.0",
     "google-auth-library": "^9.15.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
+    "jszip": "^3.10.2",
     "next": "^15.3.0",
     "next-auth": "^5.0.0-beta.31",
     "react": "^19.1.0",

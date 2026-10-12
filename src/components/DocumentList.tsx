@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo } from "react"
 import Link from "next/link"
 import { jsPDF } from "jspdf"
+import { departmentLabel } from "@/lib/departments"
 import type { Document } from "@/lib/types"
 
 interface DocumentListProps {
@@ -196,7 +197,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
 
   if (documents.length === 0) {
     return (
-      <div className="card" style={{ textAlign: "center", color: "#888" }}>
+      <div className="card" style={{ textAlign: "center", color: "#56657b" }}>
         <p>ยังไม่มีเอกสาร</p>
         <p style={{ fontSize: "0.85rem", marginTop: 4 }}>
           เอกสารที่สร้างในแท็บส่งจะปรากฏที่นี่
@@ -229,7 +230,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
               <button
                 className="btn-primary"
                 onClick={confirmBatch ? cancelBatchDelete : cancelSingleDelete}
-                style={{ flex: 1, background: "#888" }}
+                style={{ flex: 1, background: "#56657b" }}
               >
                 ยกเลิก
               </button>
@@ -265,7 +266,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
             >
               {isAllSelected() ? "ยกเลิกทั้งหมด" : "เลือกทั้งหมด"}
             </button>
-            <span style={{ fontSize: "0.85rem", color: "#888" }}>
+            <span style={{ fontSize: "0.85rem", color: "#56657b" }}>
               เลือก {selectedIds.size} รายการ
             </span>
           </div>
@@ -316,11 +317,11 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
                       <div
                         style={{
                           fontSize: "0.85rem",
-                          color: "#888",
+                          color: "#56657b",
                           marginTop: 2,
                         }}
                       >
-                        {doc.sender_name} &rarr; {doc.recipient_name}
+                        {doc.sender_name} ({departmentLabel(doc.sender_department)}) &rarr; {doc.recipient_name} ({departmentLabel(doc.recipient_department)})
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
@@ -343,11 +344,11 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
                         <div
                           style={{
                             fontSize: "0.85rem",
-                            color: "#888",
+                            color: "#56657b",
                             marginTop: 2,
                           }}
                         >
-                          {doc.sender_name} &rarr; {doc.recipient_name}
+                          {doc.sender_name} ({departmentLabel(doc.sender_department)}) &rarr; {doc.recipient_name} ({departmentLabel(doc.recipient_department)})
                         </div>
                       </div>
                       <div style={{ textAlign: "right" }}>
@@ -363,7 +364,7 @@ export default function DocumentList({ documents, onRefresh }: DocumentListProps
                     style={{
                       background: "none",
                       border: "none",
-                      color: deleting ? "#ccc" : "#ff3b30",
+                      color: deleting ? "#ccc" : "#b91c1c",
                       fontSize: "1.4rem",
                       cursor: "pointer",
                       padding: "12px 16px",

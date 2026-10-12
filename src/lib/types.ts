@@ -11,6 +11,8 @@ export interface Document {
   doc_type: string
   sender_name: string
   recipient_name: string
+  sender_department: string | null
+  recipient_department: string | null
   description: string | null
   status: DocStatus
   created_at: string
@@ -28,4 +30,14 @@ export interface Attachment {
 
 export interface DocumentWithAttachments extends Document {
   attachments: Attachment[]
+}
+
+/** Attachment metadata without the (large) base64 payload — images are fetched via /api/attachments/[id]. */
+export interface AttachmentRef {
+  id: number
+  kind: AttachmentKind
+}
+
+export interface HistoryRow extends Document {
+  attachments: AttachmentRef[]
 }

@@ -51,8 +51,9 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
       )}
 
       {value.length < MAX_PHOTOS && (
-        <button type="button" onClick={handleCapture} style={{ background: "#fdf0e2", color: "#7a4a1e", width: "100%", padding: value.length > 0 ? 16 : 40 }}>
-          ถ่ายรูป ({value.length}/{MAX_PHOTOS})
+        <button type="button" onClick={handleCapture} className={value.length > 0 ? "capture-button compact" : "capture-button"}>
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
+          {value.length > 0 ? `ถ่ายเพิ่ม (${value.length}/${MAX_PHOTOS})` : "แตะเพื่อถ่ายรูป"}
         </button>
       )}
 

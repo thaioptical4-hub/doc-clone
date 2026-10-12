@@ -109,11 +109,11 @@ export default function SignaturePad({ value, onChange }: SignaturePadProps) {
   return (
     <div>
       <div className="signature-area">
-        <canvas ref={canvasRef} />
+        <canvas ref={canvasRef} aria-label="พื้นที่เซ็นชื่อ ใช้นิ้วเซ็นได้" />
       </div>
       {hasContent && (
-        <button type="button" onClick={clear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-          ลบลายเซ็น
+        <button type="button" onClick={clear} className="btn-outline">
+          ล้างแล้วเซ็นใหม่
         </button>
       )}
     </div>
