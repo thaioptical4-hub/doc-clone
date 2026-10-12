@@ -33,6 +33,14 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
+    if (!body.photo_recipient || !body.signature_recipient) {
+      return NextResponse.json({ error: "ต้องมีรูปหลังส่งและลายเซ็นผู้รับ" }, { status: 400 })
+    }
+    const existing = await getDocument(Number(id))
+    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+    if (existing.status === "confirmed") {
+      return NextResponse.json({ error: "เอกสารนี้ยืนยันรับแล้ว" }, { status: 409 })
+    }
     const doc = await confirmDocument(Number(id), {
       photo_recipient: body.photo_recipient,
       signature_recipient: body.signature_recipient,

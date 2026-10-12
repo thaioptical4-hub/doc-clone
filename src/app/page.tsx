@@ -1,23 +1,18 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import TabBar from "@/components/TabBar"
+import { AppNav } from "@/components/AppNav"
 import SendPage from "@/app/send/page"
 import ReceivePage from "@/app/receive/page"
 
 function HomeContent() {
   const searchParams = useSearchParams()
-  const initialTab = searchParams.get("tab") === "receive" ? "receive" : "send"
-  const [tab, setTab] = useState<"send" | "receive">(initialTab)
+  const tab = searchParams.get("tab") === "receive" ? "receive" : "send"
 
   return (
     <>
-      <div className="app-header">
-        <img src="/logo.svg" alt="CRAFT" />
-      </div>
-      <div className="brand-stripe" />
-      <TabBar active={tab} onChange={setTab} />
+      <AppNav active={tab} />
       <div className="container">
         {tab === "send" ? <SendPage /> : <ReceivePage />}
       </div>
@@ -27,7 +22,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="container" style={{ marginTop: 24 }}>Loading...</div>}>
+    <Suspense fallback={<div className="container" style={{ marginTop: 24 }}>กำลังโหลด...</div>}>
       <HomeContent />
     </Suspense>
   )

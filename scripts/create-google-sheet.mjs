@@ -32,6 +32,8 @@ const HEADERS = [
   "ลิงก์ลายเซ็นผู้ส่ง",
   "ลิงก์รูปผู้รับ",
   "ลิงก์ลายเซ็นผู้รับ",
+  "หน่วยงานผู้ส่ง",
+  "หน่วยงานผู้รับ",
 ]
 
 async function main() {
@@ -49,7 +51,7 @@ async function main() {
   const { spreadsheetId } = await createRes.json()
 
   const headerRes = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Documents!A1:L1?valueInputOption=USER_ENTERED`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Documents!A1:N1?valueInputOption=USER_ENTERED`,
     {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

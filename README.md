@@ -4,6 +4,19 @@ Internal document delivery and confirmation system. Physical paper travels betwe
 
 Two iPads: **Tablet 1** sends documents with sender details, optional photo, and signature. **Tablet 2** receives them, adds recipient photo and signature, and confirms delivery.
 
+## What's new in v2
+
+- **New look** — TOG Corporate Service colours (navy / corporate blue) and the IBM Plex Sans Thai font, with one top menu: ส่งเอกสาร · รับเอกสาร · ประวัติ · แดชบอร์ด.
+- **Departments** — the send form now asks for the sender's and recipient's department (dropdown). Edit the list in `src/lib/departments.ts`. Older documents show as "ไม่ระบุ".
+- **Proof is required** — at least one photo before sending; a photo after delivery **and** the recipient's signature before a receipt can be confirmed (enforced in the API too). The sender signature stays optional, as before.
+- **Executive dashboard** (`/dashboard`) — today / last 7 days / this month: totals vs. the previous period, received %, average time to receive, documents per sender department, hourly/daily volume, the most-used routes, and everything still waiting (overdue after 60 minutes, see `OVERDUE_MINUTES` in `src/lib/stats.ts`). Auto-refreshes every 30 s.
+- **History** (`/history`) — filter by date range, department, status or text; thumbnails of the before photo, sender signature, after photo and recipient signature with a full-size viewer; download as **Excel with the images embedded** (plus a per-department summary sheet) or a **ZIP of all photos** named by document number. Files are built in the browser, so large ranges don't hit server limits.
+- **Google Sheet** — two new columns at the end: M หน่วยงานผู้ส่ง, N หน่วยงานผู้รับ (add the headers to an existing sheet by hand).
+
+### Database migration
+
+The two new nullable columns (`sender_department`, `recipient_department`) and an index on `created_at` are added automatically the first time the app touches the database (`ensureSchema` in `src/lib/db.ts`). You can also run the bottom of `db/schema.sql` yourself. Both are safe to re-run and don't change existing rows.
+
 ## How It Works
 
 1. **Tablet 1** — Fill out the Send form: document type, sender name, recipient name, optional photo (camera), optional signature (Apple Pencil or finger). Tap ส่งเอกสาร.
@@ -165,3 +178,6 @@ src/
 | `PATCH` | `/api/documents/[id]` | Confirm receipt (add recipient photo/signature) |
 | `DELETE` | `/api/documents/[id]` | Delete document + all its attachments |
 | `POST` | `/api/documents/batch-delete` | Bulk delete `{ ids: [1, 2, 3] }` |
+| `GET` | `/api/stats?period=today\|week\|month` | Dashboard numbers |
+| `GET` | `/api/history?from=YYYY-MM-DD&to=YYYY-MM-DD&dept=&status=&q=` | Documents with attachment ids (no image data) |
+| `GET` | `/api/attachments/[id]` | One photo/signature as an image file |

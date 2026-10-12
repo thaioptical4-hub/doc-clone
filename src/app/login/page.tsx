@@ -34,7 +34,7 @@ function LoginForm() {
             <label htmlFor="password">รหัสผ่าน</label>
             <input id="password" name="password" type="password" required />
           </div>
-          {error && <p style={{ color: "#ff3b30", marginBottom: 16 }}>ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>}
+          {error && <p style={{ color: "#b91c1c", marginBottom: 16 }}>ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>}
           <button type="submit" className="btn-primary">เข้าสู่ระบบ</button>
         </form>
       </div>

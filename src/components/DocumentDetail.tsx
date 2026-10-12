@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf"
 import html2canvas from "html2canvas"
 import CameraCapture from "./CameraCapture"
 import SignaturePad from "./SignaturePad"
+import { departmentLabel } from "@/lib/departments"
 import type { DocumentWithAttachments } from "@/lib/types"
 
 function formatDate(iso: string) {
@@ -28,6 +29,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
   const [photo, setPhoto] = useState<string | null>(null)
   const [signature, setSignature] = useState<string | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [confirmError, setConfirmError] = useState("")
   const [exporting, setExporting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const printRef = useRef<HTMLDivElement>(null)
@@ -38,9 +40,17 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
   const recipientSig = document.attachments.find((a) => a.kind === "signature_recipient")
   const isConfirmed = document.status === "confirmed"
 
+  const canConfirm = !!photo && !!signature
+
   async function handleConfirm() {
+    if (!canConfirm) return
     setConfirming(true)
-    await onConfirm(photo || undefined, signature || undefined)
+    setConfirmError("")
+    try {
+      await onConfirm(photo || undefined, signature || undefined)
+    } catch (err) {
+      setConfirmError(err instanceof Error ? err.message : "ยืนยันไม่สำเร็จ กรุณาลองอีกครั้ง")
+    }
     setConfirming(false)
   }
 
@@ -121,7 +131,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
                     <button
                       className="btn-primary"
                       onClick={() => setShowDeleteConfirm(false)}
-                      style={{ flex: 1, background: "#888" }}
+                      style={{ flex: 1, background: "#56657b" }}
                     >
                       ยกเลิก
                     </button>
@@ -141,10 +151,12 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
             <div className="form-group" style={{ marginBottom: 8 }}>
               <label>ผู้ส่ง</label>
               <p>{document.sender_name}</p>
+              <p className="muted">{departmentLabel(document.sender_department)}</p>
             </div>
             <div className="form-group" style={{ marginBottom: 8 }}>
               <label>ผู้รับ</label>
               <p>{document.recipient_name}</p>
+              <p className="muted">{departmentLabel(document.recipient_department)}</p>
             </div>
           </div>
           {document.description && (
@@ -175,7 +187,7 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
           <div className="form-row">
             {senderPhotos.length > 0 && (
               <div className="form-group">
-                <label>รูปผู้ส่ง ({senderPhotos.length})</label>
+                <label>รูปก่อนส่ง ({senderPhotos.length})</label>
                 <div className="photo-grid">
                   {senderPhotos.map((photo) => (
                     <div key={photo.id} className="photo-grid-item">
@@ -199,13 +211,13 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
         {isConfirmed && (
           <>
-            <hr style={{ margin: "20px 0", border: "none", borderTop: "2px solid #34c759" }} />
+            <hr style={{ margin: "20px 0", border: "none", borderTop: "2px solid #15803d" }} />
 
             {(recipientPhoto || recipientSig) && (
               <div className="form-row">
                 {recipientPhoto && (
                   <div className="form-group">
-                    <label>รูปผู้รับ</label>
+                    <label>รูปหลังส่ง</label>
                     <div className="camera-area">
                       <img src={recipientPhoto.data} alt="Recipient" />
                     </div>
@@ -231,18 +243,27 @@ export default function DocumentDetail({ document, onConfirm, onDelete }: Docume
 
             <div className="form-row">
               <div className="form-group">
-                <label>รูปภาพ (ไม่บังคับ)</label>
+                <label>รูปหลังส่ง (บังคับ)</label>
                 <CameraCapture value={photo} onChange={setPhoto} />
               </div>
 
               <div className="form-group">
-                <label>ลายเซ็น (ไม่บังคับ)</label>
+                <label>ลายเซ็นผู้รับ (บังคับ)</label>
                 <SignaturePad value={signature} onChange={setSignature} />
               </div>
             </div>
 
-            <button className="btn-success" onClick={handleConfirm} disabled={confirming}>
-              {confirming ? "กำลังยืนยัน..." : "ยืนยันการรับ"}
+            {confirmError && <p className="form-error" role="alert">{confirmError}</p>}
+            <button className="btn-success btn-xl" onClick={handleConfirm} disabled={confirming || !canConfirm}>
+              {confirming
+                ? "กำลังยืนยัน..."
+                : canConfirm
+                  ? "ยืนยันการรับ"
+                  : !photo && !signature
+                    ? "ถ่ายรูปหลังส่งและให้ผู้รับเซ็นก่อน"
+                    : !photo
+                      ? "ถ่ายรูปหลังส่งก่อน"
+                      : "รอผู้รับเซ็นชื่อ"}
             </button>
           </>
         )}

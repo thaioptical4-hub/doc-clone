@@ -12,6 +12,8 @@ export async function appendDocumentRow(doc: {
   doc_type: string
   sender_name: string
   recipient_name: string
+  sender_department?: string | null
+  recipient_department?: string | null
   description: string | null
   created_at: string
 }): Promise<number | null> {
@@ -19,7 +21,8 @@ export async function appendDocumentRow(doc: {
   const token = await getGoogleAccessToken()
   if (!spreadsheetId || !token) return null
 
-  // Columns: A id, B doc_type, C sender, D recipient, E description, F sent_at, G status, H confirmed_at, I-L Drive links
+  // Columns: A id, B doc_type, C sender, D recipient, E description, F sent_at, G status, H confirmed_at, I-L Drive links,
+  // M sender department, N recipient department (added in v2 — appended last so existing columns don't move)
   const row = [
     doc.id,
     doc.doc_type,
@@ -33,6 +36,8 @@ export async function appendDocumentRow(doc: {
     "",
     "",
     "",
+    doc.sender_department ?? "",
+    doc.recipient_department ?? "",
   ]
 
   const res = await fetch(

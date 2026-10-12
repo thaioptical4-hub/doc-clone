@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import DocumentDetail from "@/components/DocumentDetail"
+import { AppNav } from "@/components/AppNav"
 import type { DocumentWithAttachments } from "@/lib/types"
 
 export default function ReceiveDetailPage() {
@@ -36,15 +37,20 @@ export default function ReceiveDetailPage() {
     if (res.ok) {
       const updated = await res.json()
       setDoc(updated)
+      return
     }
+    const data = await res.json().catch(() => null)
+    throw new Error(data?.error || "ยืนยันไม่สำเร็จ กรุณาลองอีกครั้ง")
   }
 
-  if (loading) return <p style={{ marginTop: 24 }}>กำลังโหลด...</p>
-  if (!doc) return <p style={{ marginTop: 24 }}>ไม่พบเอกสาร</p>
+  if (loading) return <><AppNav active="receive" /><p className="container">กำลังโหลด...</p></>
+  if (!doc) return <><AppNav active="receive" /><p className="container">ไม่พบเอกสาร</p></>
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <button className="back-button" onClick={() => router.push("/?tab=receive")} style={{ background: "none", color: "#1e2a54", padding: "8px 0", marginBottom: 16 }}>
+    <>
+    <AppNav active="receive" />
+    <div className="container" style={{ marginTop: 8 }}>
+      <button className="back-button" onClick={() => router.push("/?tab=receive")} style={{ marginBottom: 16 }}>
         &larr; กลับ
       </button>
       <DocumentDetail
@@ -53,5 +59,6 @@ export default function ReceiveDetailPage() {
         onDelete={() => router.push("/?tab=receive")}
       />
     </div>
+    </>
   )
 }

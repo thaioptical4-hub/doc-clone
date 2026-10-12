@@ -40,13 +40,14 @@ export default function CameraCapture({ value, onChange }: CameraCaptureProps) {
           <div className="camera-area">
             <img src={value} alt="Captured" />
           </div>
-          <button type="button" onClick={handleClear} className="btn-danger" style={{ padding: "8px 16px", fontSize: "0.85rem" }}>
-            ลบรูปภาพ
+          <button type="button" onClick={handleClear} className="btn-outline">
+            ถ่ายใหม่
           </button>
         </div>
       ) : (
-        <button type="button" onClick={handleCapture} style={{ background: "#fdf0e2", color: "#7a4a1e", width: "100%", padding: "40px" }}>
-          ถ่ายรูป
+        <button type="button" onClick={handleCapture} className="capture-button">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
+          แตะเพื่อถ่ายรูป
         </button>
       )}
       <input
