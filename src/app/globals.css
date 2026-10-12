@@ -855,6 +855,40 @@ a { color: var(--tog-600); }
   margin-bottom: 12px;
 }
 
+/* ---------- Department manager ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.dept-list { list-style: none; margin-bottom: 16px; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+
+.dept-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+}
+
+.dept-row:first-child { border-top: none; }
+.dept-row.hidden .dept-name { color: var(--ink-muted); }
+.dept-order { display: flex; gap: 4px; }
+.dept-name { flex: 1 1 160px; min-width: 0; font-weight: 500; }
+.dept-edit { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.dept-check { display: flex; gap: 8px; align-items: center; font-size: 0.9rem; color: var(--ink-muted); }
+.dept-check input { width: 20px; height: 20px; }
+.dept-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.dept-add .field { flex: 1 1 220px; }
+.icon-button:disabled { opacity: 0.4; }
+
 /* ---------- Hover (pointer devices only) ---------- */
 @media (hover: hover) and (pointer: fine) {
   .btn-primary:not(:disabled):hover { background: var(--tog-700); }

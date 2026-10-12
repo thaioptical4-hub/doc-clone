@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { AppNav } from "@/components/AppNav"
-import { DEPARTMENTS, UNKNOWN_DEPARTMENT, departmentLabel } from "@/lib/departments"
+import { UNKNOWN_DEPARTMENT, departmentLabel, type Department } from "@/lib/departments"
 import { attachmentUrl, docNo, exportExcel, exportZip, photosOf, saveBlob, thaiDateTime, thaiTime } from "@/lib/exportHistory"
 import type { AttachmentRef, HistoryRow } from "@/lib/types"
 
@@ -32,6 +32,14 @@ export default function HistoryPage() {
   const [page, setPage] = useState(0)
   const [preview, setPreview] = useState<Preview | null>(null)
   const [busy, setBusy] = useState<null | { label: string; done: number; total: number }>(null)
+  const [departments, setDepartments] = useState<Department[]>([])
+
+  useEffect(() => {
+    fetch("/api/departments?all=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setDepartments)
+      .catch(() => setDepartments([]))
+  }, [])
 
   const load = useCallback(async () => {
     setRows(null)
@@ -147,7 +155,7 @@ export default function HistoryPage() {
             หน่วยงาน (ผู้ส่งหรือผู้รับ)
             <select className="field" value={dept} onChange={(e) => setDept(e.target.value)}>
               <option value="">ทุกหน่วยงาน</option>
-              {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+              {departments.map((d) => <option key={d.id} value={d.name}>{d.active ? d.name : `${d.name} (ซ่อนแล้ว)`}</option>)}
             </select>
           </label>
           <label>
