@@ -1,7 +1,6 @@
 "use client"
 
-import { useRef } from "react"
-import { compressImage } from "@/lib/image"
+import { PhotoPicker } from "./PhotoPicker"
 
 const MAX_PHOTOS = 5
 
@@ -11,29 +10,11 @@ interface MultiCameraCaptureProps {
 }
 
 export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptureProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  function handleCapture() {
-    inputRef.current?.click()
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (inputRef.current) inputRef.current.value = ""
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      compressImage(reader.result as string, (compressed) => {
-        onChange([...value, compressed].slice(0, MAX_PHOTOS))
-      })
-    }
-    reader.readAsDataURL(file)
-  }
-
   function handleRemove(index: number) {
     onChange(value.filter((_, i) => i !== index))
   }
+
+  const remaining = MAX_PHOTOS - value.length
 
   return (
     <div>
@@ -42,7 +23,7 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
           {value.map((photo, i) => (
             <div key={i} className="photo-grid-item">
               <img src={photo} alt={`รูปที่ ${i + 1}`} />
-              <button type="button" onClick={() => handleRemove(i)} className="photo-grid-remove" title="ลบรูปนี้">
+              <button type="button" onClick={() => handleRemove(i)} className="photo-grid-remove" aria-label={`ลบรูปที่ ${i + 1}`}>
                 &times;
               </button>
             </div>
@@ -50,30 +31,16 @@ export default function MultiCameraCapture({ value, onChange }: MultiCameraCaptu
         </div>
       )}
 
-      {value.length < MAX_PHOTOS && (
-        <button type="button" onClick={handleCapture} className={value.length > 0 ? "capture-button compact" : "capture-button"}>
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
-          {value.length > 0 ? `ถ่ายเพิ่ม (${value.length}/${MAX_PHOTOS})` : "แตะเพื่อถ่ายรูป"}
-        </button>
+      {remaining > 0 ? (
+        <PhotoPicker
+          remaining={remaining}
+          compact={value.length > 0}
+          takeLabel={value.length > 0 ? `ถ่ายเพิ่ม (${value.length}/${MAX_PHOTOS})` : "ถ่ายรูป"}
+          onPicked={(photos) => onChange([...value, ...photos].slice(0, MAX_PHOTOS))}
+        />
+      ) : (
+        <p className="muted">ครบ {MAX_PHOTOS} รูปแล้ว</p>
       )}
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={{
-          position: "absolute",
-          width: 1,
-          height: 1,
-          padding: 0,
-          margin: -1,
-          overflow: "hidden",
-          clip: "rect(0,0,0,0)",
-          border: 0,
-        }}
-      />
     </div>
   )
 }
