@@ -484,6 +484,21 @@ a { color: var(--tog-600); }
 
 .capture-button.compact { min-height: 56px; flex-direction: row; }
 
+.photo-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.photo-picker .capture-button { min-height: 120px; }
+.photo-picker.compact .capture-button { min-height: 56px; flex-direction: row; }
+
+.capture-button.secondary {
+  background: #fff;
+  border-color: var(--line);
+  color: var(--tog-700);
+}
+
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
