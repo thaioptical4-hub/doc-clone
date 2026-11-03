@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { AppNav } from "@/components/AppNav"
 import { UNKNOWN_DEPARTMENT, departmentLabel, type Department } from "@/lib/departments"
@@ -41,29 +41,43 @@ export default function HistoryPage() {
       .catch(() => setDepartments([]))
   }, [])
 
+  // The range the rows on screen were actually loaded for. Labels and file names use this,
+  // never the date inputs, so an export can't be named for a day it doesn't contain.
+  const [loaded, setLoaded] = useState({ from, to })
+  const requestId = useRef(0)
+  const qRef = useRef(q)
+  useEffect(() => {
+    qRef.current = q
+  }, [q])
+
   const load = useCallback(async () => {
+    const id = ++requestId.current
     setRows(null)
     setError("")
+    const query = qRef.current.trim()
     const params = new URLSearchParams({ from, to })
     if (dept) params.set("dept", dept)
     if (status) params.set("status", status)
-    if (q.trim()) params.set("q", q.trim())
+    if (query) params.set("q", query)
     try {
       const res = await fetch(`/api/history?${params}`, { cache: "no-store" })
       if (!res.ok) throw new Error()
-      setRows(await res.json())
+      const data = (await res.json()) as HistoryRow[]
+      if (id !== requestId.current) return // a newer search has started
+      setRows(data)
+      setLoaded({ from, to })
       setPage(0)
     } catch {
+      if (id !== requestId.current) return
       setRows([])
       setError("โหลดข้อมูลไม่สำเร็จ กรุณาลองอีกครั้ง")
     }
-  }, [from, to, dept, status, q])
+  }, [from, to, dept, status])
 
-  // Load once on open; later loads come from the search button, not from every filter keystroke.
-  const [initialLoad] = useState(() => load)
+  // Reload as soon as the dates, department or status change; free-text search waits for the button.
   useEffect(() => {
-    initialLoad()
-  }, [initialLoad])
+    if (from && to && from <= to) load()
+  }, [load, from, to])
 
   useEffect(() => {
     if (!preview) return
@@ -72,7 +86,7 @@ export default function HistoryPage() {
     return () => window.removeEventListener("keydown", onKey)
   }, [preview])
 
-  const rangeLabel = from === to ? `วันที่ ${thaiDay(from)}` : `${thaiDay(from)} – ${thaiDay(to)}`
+  const rangeLabel = loaded.from === loaded.to ? `วันที่ ${thaiDay(loaded.from)}` : `${thaiDay(loaded.from)} – ${thaiDay(loaded.to)}`
   const counts = useMemo(() => {
     const list = rows ?? []
     const confirmed = list.filter((r) => r.status === "confirmed").length
@@ -91,7 +105,7 @@ export default function HistoryPage() {
 
   async function runExport(kind: "excel" | "zip") {
     if (!rows?.length || busy) return
-    const stamp = from === to ? from : `${from}_ถึง_${to}`
+    const stamp = loaded.from === loaded.to ? loaded.from : `${loaded.from}_ถึง_${loaded.to}`
     const label = kind === "excel" ? "กำลังสร้างไฟล์ Excel" : "กำลังรวมรูปเป็น ZIP"
     setBusy({ label, done: 0, total: 0 })
     try {
