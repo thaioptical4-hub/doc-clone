@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server"
+import { NextResponse, after } from "next/server"
 import { getDocument, confirmDocument, deleteDocument } from "@/lib/db"
 import { parseImageDataUrl, uploadFileToDrive, getOrCreateDateFolder } from "@/lib/googleDrive"
 import { updateDocumentRow } from "@/lib/googleSheets"
 import type { AttachmentKind } from "@/lib/types"
+
+// Leaves room for the Drive/Sheets backup that runs after the response has been sent.
+export const maxDuration = 60
 
 const LINK_FIELD: Record<AttachmentKind, "senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature"> = {
   photo_sender: "senderPhoto",
@@ -47,40 +50,49 @@ export async function PATCH(
     })
     if (!doc) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-    try {
-      const docLabel = doc.doc_type.replace(/\s+/g, "-")
-      const dateLabel = new Date(doc.created_at).toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
-      const rootFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID
-      const dateFolderId = rootFolderId ? await getOrCreateDateFolder(rootFolderId, dateLabel) : undefined
+    // Reply as soon as the database has the confirmation; the Google Drive/Sheets backup
+    // (several sequential uploads) used to run here and kept the iPad spinning.
+    const documentId = id
+    after(async () => {
+      try {
+        const docLabel = doc.doc_type.replace(/\s+/g, "-")
+        const dateLabel = new Date(doc.created_at).toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
+        const rootFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID
+        const dateFolderId = rootFolderId ? await getOrCreateDateFolder(rootFolderId, dateLabel) : undefined
 
-      const linkGroups: Record<"senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature", string[]> = {
-        senderPhoto: [],
-        senderSignature: [],
-        recipientPhoto: [],
-        recipientSignature: [],
-      }
+        const linkGroups: Record<"senderPhoto" | "senderSignature" | "recipientPhoto" | "recipientSignature", string[]> = {
+          senderPhoto: [],
+          senderSignature: [],
+          recipientPhoto: [],
+          recipientSignature: [],
+        }
 
-      for (const attachment of doc.attachments) {
-        const { buffer, mimeType, extension } = parseImageDataUrl(attachment.data)
-        const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}-${attachment.id}.${extension}`
-        const uploaded = await uploadFileToDrive(buffer, filename, mimeType, dateFolderId || undefined)
-        if (uploaded) linkGroups[LINK_FIELD[attachment.kind]].push(uploaded.webViewLink)
-      }
+        const uploads = await Promise.all(
+          doc.attachments.map(async (attachment) => {
+            const { buffer, mimeType, extension } = parseImageDataUrl(attachment.data)
+            const filename = `doc-${doc.id}-${docLabel}-${attachment.kind}-${attachment.id}.${extension}`
+            return { attachment, uploaded: await uploadFileToDrive(buffer, filename, mimeType, dateFolderId || undefined) }
+          })
+        )
+        for (const { attachment, uploaded } of uploads) {
+          if (uploaded) linkGroups[LINK_FIELD[attachment.kind]].push(uploaded.webViewLink)
+        }
 
-      if (doc.sheet_row) {
-        await updateDocumentRow(doc.sheet_row, {
-          updated_at: doc.updated_at,
-          links: {
-            senderPhoto: linkGroups.senderPhoto.join("\n"),
-            senderSignature: linkGroups.senderSignature.join("\n"),
-            recipientPhoto: linkGroups.recipientPhoto.join("\n"),
-            recipientSignature: linkGroups.recipientSignature.join("\n"),
-          },
-        })
+        if (doc.sheet_row) {
+          await updateDocumentRow(doc.sheet_row, {
+            updated_at: doc.updated_at,
+            links: {
+              senderPhoto: linkGroups.senderPhoto.join("\n"),
+              senderSignature: linkGroups.senderSignature.join("\n"),
+              recipientPhoto: linkGroups.recipientPhoto.join("\n"),
+              recipientSignature: linkGroups.recipientSignature.join("\n"),
+            },
+          })
+        }
+      } catch (driveError) {
+        console.error("Google Drive/Sheets backup failed for document", documentId, driveError)
       }
-    } catch (driveError) {
-      console.error("Google Drive/Sheets backup failed for document", id, driveError)
-    }
+    })
 
     return NextResponse.json(doc)
   } catch (error) {
